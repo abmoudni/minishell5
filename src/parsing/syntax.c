@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../../include/minishell.h"
 
 int check_simple_command(t_tokens *tokens) {
     t_tokens *last = tokens;

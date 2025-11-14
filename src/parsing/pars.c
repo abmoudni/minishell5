@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../../include/minishell.h"
 
 int count_tokens(t_tokens *tokens) {
     int len = 0;

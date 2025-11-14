@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "../../include/minishell.h"
 #include <unistd.h>
 
 t_tokens *create_token(char *str, int fla) {

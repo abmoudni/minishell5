@@ -14,6 +14,19 @@
 
 #define BUFFER_SIZE 1024
 
+/* Exit/macros used by builtin_exit.c */
+#define NAR_ERROR ": numeric argument required\n"
+#define TMA_ERROR "exit: too many arguments\n"
+#define MAX_EXIT "9223372036854775807"
+#define MIN_EXIT "9223372036854775808"
+
+// Linked list for environment variables
+typedef struct s_env {
+    char *key;
+    char *value;
+    struct s_env *next;
+} t_env;
+
 // ---------- ENUM ----------
 typedef enum e_token_type {
     TOKEN_WORD,
@@ -81,5 +94,11 @@ char *ft_strndup(const char *s, size_t n);
 void         free_commands(t_command *cmds);
 
 int ft_star_heredoc(t_tokens *tokens);
-
+int builtin_echo(char **args);
+int builtin_cd(char **args);
+int builtin_env(t_env *env);
+int builtin_pwd(void);
+void builtin_exit(char **args);
+int builtin_unset(char **args, t_env **env);
+int builtin_export(char **args, t_env **env);
 #endif

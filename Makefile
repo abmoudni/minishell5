@@ -1,6 +1,6 @@
 NAME = minishell
 
-SRC =  token.c minishell.c pars.c utilis.c syntax.c herdoc.c
+SRC =  main.c ${wildcard src/*/*.c src/*.c}
 
 OBJ = ${SRC:.c=.o}
 
