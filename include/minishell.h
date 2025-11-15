@@ -12,93 +12,52 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#define BUFFER_SIZE 1024
+void    execute_command(char *input, char **env);
+char    **parse_command(char *input);
+char    *find_command_path(char *cmd);
+void    free_array(char **arr);
 
-/* Exit/macros used by builtin_exit.c */
-#define NAR_ERROR ": numeric argument required\n"
-#define TMA_ERROR "exit: too many arguments\n"
-#define MAX_EXIT "9223372036854775807"
-#define MIN_EXIT "9223372036854775808"
+int     is_builtin(char *cmd);
+int     execute_builtin(char **args);
+int     builtin_echo(char **args);
+int     builtin_pwd(char **args);
+int     builtin_env(char **args);
 
-// Linked list for environment variables
-typedef struct s_env {
-    char *key;
-    char *value;
-    struct s_env *next;
-} t_env;
+// LibFt Functions :
 
-// ---------- ENUM ----------
-typedef enum e_token_type {
-    TOKEN_WORD,
-    TOKEN_PIPE,
-    TOKEN_REDIR_IN,      // <
-    TOKEN_REDIR_OUT,     // >
-    TOKEN_REDIR_APPEND,  // >>
-    TOKEN_HEREDOC,        // <<
-    TOKEN_INVALID
-} t_token_type;
-
-// ---------- STRUCTS ---------
-typedef struct s_tokens {
-    char *value;
-    int  flag;
-    t_token_type type;
-    struct s_tokens *next;
-} t_tokens;
-
-typedef struct s_redirect {
-    t_token_type type;
-    char *filename;
-    struct s_redirect *next;
-} t_redirect;
-
-typedef struct s_command {
-    char **args;
-    t_redirect *redirs;
-    struct s_command *next;
-} t_command;
-
-typedef struct s_fd 
-{
-	int	fd_in;
-	int	fd_out;
-}	t_fd;
-
-// ---------- FUNCTIONS ----------
-// token.c
-t_tokens *create_token(char *str, int fla);
-void         add_token(t_tokens **head, t_tokens *new_token);
-void         print_tokens(t_tokens *tokens);
-int check_simple_command(t_tokens *tokens);
-char *ft_substr(char const *s, unsigned int start, size_t len);
-int ft_isspace(char c);
-int ft_strcmp(const char *s1, const char *s2);
+int		ft_atoi(const char *nptr);
+void	ft_bzero(void *s, int n);
+void	*ft_calloc(size_t nmemb, size_t size);
+int		ft_isalnum(int d);
+int		ft_isalpha(int c);
+int		ft_isascii(int c);
+int		ft_isdigit(int d);
+int		ft_isprint(int c);
+char	*ft_itoa(int n);
+void	*ft_memchr(const void *s, int c, size_t n);
+int		ft_memcmp(const void *s1, const void *s2, size_t n);
+void	*ft_memcpy(void *dest_str, const void *src_str, size_t n);
+void	*ft_memmove(void *dst, const void *src, size_t len);
+void	*ft_memset(void *a, int c, int len);
+void	ft_putchar_fd(char c, int fd);
+void	ft_putendl_fd(char *s, int fd);
+void	ft_putnbr_fd(int n, int fd);
+void	ft_putstr_fd(char *s, int fd);
+char	**ft_split(char const *s, char c);
+char	*ft_strchr(const char *s, int c);
 char	*ft_strdup(const char *s);
-int check_unclosed_quotes(const char *line);
-// parser.c
-t_tokens *tokenize(const char *line);
-t_command *new_command(int len);
-void check_token(t_tokens *token);
-t_command   *parse_tokens(t_tokens *tokens);
-t_redirect  *new_redir(t_token_type type, char *file);
-void         print_commands(t_command *cmds);
+void	ft_striteri(char *s, void (*f)(unsigned int, char *));
+char	*ft_strjoin(char const *s1, char const *s2);
+size_t	ft_strlcat(char *dst, const char *src, size_t size);
+size_t	ft_strlcpy(char *dst, const char *src, size_t size);
+size_t	ft_strlen(const char *s);
+char	*ft_strmapi(char const *s, char (*f)(unsigned int, char));
+int		ft_strncmp(const char *s1, const char *s2, size_t n);
+char	*ft_strnstr(const char *big, const char *little, size_t len);
+char	*ft_strrchr(const char *s, int c);
+char	*ft_strtrim(char const *s1, char const *set);
+char	*ft_substr(char const *s, unsigned int start, size_t len);
+int		ft_tolower(int c);
+int		ft_toupper(int c);
 
-// optional utils
-char        *clean_line(const char *line);
-int          check_unclosed_quotes(const char *line);
-char *ft_strndup(const char *s, size_t n);
-
-
-// optional free
-//void         free_tokens(t_token *tokens);
-void         free_commands(t_command *cmds);
-
-int ft_star_heredoc(t_tokens *tokens);
-int builtin_echo(char **args);
-int builtin_cd(char **args);
-int builtin_env(t_env *env);
-int builtin_pwd(void);
-void builtin_exit(char **args);
-int builtin_unset(char **args, t_env **env);
-int builtin_export(char **args, t_env **env);
 #endif

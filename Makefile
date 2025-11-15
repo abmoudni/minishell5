@@ -1,33 +1,28 @@
 NAME = minishell
 
-SRC =  main.c ${wildcard src/*/*.c src/*.c}
+SRC = ${wildcard src/*/*.c src/*.c}
 
 OBJ = ${SRC:.c=.o}
 
 CC = cc
 CFLAGS = -Wall -Wextra # -Werror
 
-# Rules for compiling object files
 %.o:%.c headerfile.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Rule to create static library
-$(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -lreadline
+all: $(NAME)
 
-# Clean object files
+$(NAME): $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -lreadline libft/libft.a
+
 clean:
 	rm -f $(OBJ)
 
-# Clean all generated files
 fclean: clean
 	rm -f $(NAME)
 
-# Rebuild all
 re: fclean all
 
-# Default target
-all: $(NAME)
 
 m: all
 	./minishell
