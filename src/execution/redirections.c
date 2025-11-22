@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:14 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/18 21:34:55 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/22 06:13:26 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,26 +72,22 @@ int execute_input_redir(t_redir *redir)
     char *filename;
      if (redir->type == REDIR_HEREDOC)
     {
-        // Read heredoc and get temp filename
-        filename = read_heredoc(redir->file);  // redir->file = delimiter
+        filename = read_heredoc(redir->file);
         if (!filename)
             return (-1);
         
-        // Open the temp file
         fd = open(filename, O_RDONLY);
         if (fd == -1)
         {
             perror(filename);
-            unlink(filename);  // Delete temp file
+            unlink(filename);
             free(filename);
             return (-1);
         }
         
-        // Redirect stdin to temp file
         dup2(fd, 0);
         close(fd);
         
-        // Delete temp file (file stays accessible until process ends!)
         unlink(filename);
         free(filename);
     }else{
