@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:19 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/20 02:38:12 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/22 04:50:12 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static int is_executable(char *path)
 {
     return (access(path, X_OK) == 0);
 }
-char *find_command_path(char *cmd, t_shell *shell)
+char *find_command_path(char *cmd, t_env_and_exit *shell)
 {
     char    *path_env;
     char    **dirs;
