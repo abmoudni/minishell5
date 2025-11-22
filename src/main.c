@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 02:45:27 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/18 18:04:19 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/22 04:50:12 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,11 @@
 int main(int ac, char **av, char **env)
 {
     char    *input;
-    t_shell shell;
+    t_env_and_exit shell;
     
-    (void) ac;
-    (void) av;
+    (void)ac;
+    (void)av;
+    
     shell.env = copy_env(env);
     if (!shell.env)
     {
@@ -42,10 +43,13 @@ int main(int ac, char **av, char **env)
             free(input);
             continue;
         }
+        
         execute_command(input, &shell);
+        
         add_history(input);
         free(input);
     }
+    
     free_array(shell.env);
     return (0);
 }

@@ -6,13 +6,13 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:07 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/20 02:37:15 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/22 06:14:28 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-void execute_command(char *input, t_shell *shell)
+void execute_command(char *input, t_env_and_exit *shell)
 {
     pid_t   pid;
     char    **args;
@@ -25,6 +25,20 @@ void execute_command(char *input, t_shell *shell)
     args = parse_command(input);
     if (!args || !args[0])
     {
+        free_array(args);
+        return;
+    }
+
+    if (has_pipe(args))
+    {
+        char ***pipe_cmds = split_all_pipes(args);
+    
+        if (pipe_cmds)
+        {
+            execute_pipeline(pipe_cmds, shell);
+            free_all_pipes(pipe_cmds);
+        }
+        
         free_array(args);
         return;
     }

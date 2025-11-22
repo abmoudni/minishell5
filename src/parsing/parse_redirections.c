@@ -32,56 +32,80 @@ t_redir_type get_redir_type(char *op)
         return (REDIR_HEREDOC);
     return (REDIR_OUT);
 }
-
 t_cmd *parse_cmd_with_redir(char **args)
 {
     t_cmd   *cmd;
     t_redir *redir;
-    int     redir_pos;
+    t_redir *last_redir;
     int     i;
+    int     j;
+    int     cmd_arg_count;
     
     cmd = malloc(sizeof(t_cmd));
     if (!cmd)
         return (NULL);
     
-    redir_pos = find_redir(args);
+    cmd->redirs = NULL;
+    last_redir = NULL;
     
-    if (redir_pos == -1)
+    cmd_arg_count = 0;
+    i = 0;
+    while (args[i])
     {
-        cmd->args = args;
-        cmd->redirs = NULL;
-        return (cmd);
+        if (ft_strcmp(args[i], ">") == 0 || ft_strcmp(args[i], ">>") == 0 ||
+            ft_strcmp(args[i], "<") == 0 || ft_strcmp(args[i], "<<") == 0)
+        {
+            i += 2;
+        }
+        else
+        {
+            cmd_arg_count++;
+            i++;
+        }
     }
     
-    redir = malloc(sizeof(t_redir));
-    if (!redir)
-    {
-        free(cmd);
-        return (NULL);
-    }
-    
-    redir->type = get_redir_type(args[redir_pos]);
-    redir->file = ft_strdup(args[redir_pos + 1]);
-    redir->next = NULL;
-    
-    cmd->redirs = redir;
-    
-    cmd->args = malloc(sizeof(char *) * (redir_pos + 1));
+    cmd->args = malloc(sizeof(char *) * (cmd_arg_count + 1));
     if (!cmd->args)
     {
-        free(redir->file);
-        free(redir);
         free(cmd);
         return (NULL);
     }
     
     i = 0;
-    while (i < redir_pos)
+    j = 0;
+    while (args[i])
     {
-        cmd->args[i] = args[i];
-        i++;
+        if (ft_strcmp(args[i], ">") == 0 || ft_strcmp(args[i], ">>") == 0 ||
+            ft_strcmp(args[i], "<") == 0 || ft_strcmp(args[i], "<<") == 0)
+        {
+            redir = malloc(sizeof(t_redir));
+            if (!redir)
+            {
+                free_cmd(cmd);
+                return (NULL);
+            }
+            
+            redir->type = get_redir_type(args[i]);
+            redir->file = ft_strdup(args[i + 1]);
+            redir->next = NULL;
+            
+            if (!cmd->redirs)
+                cmd->redirs = redir;
+            else
+                last_redir->next = redir;
+            
+            last_redir = redir;
+            
+            i += 2;
+        }
+        else
+        {
+            cmd->args[j] = args[i];
+            j++;
+            i++;
+        }
     }
-    cmd->args[i] = NULL;
+    cmd->args[j] = NULL;
     
     return (cmd);
 }
