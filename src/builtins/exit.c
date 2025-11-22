@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:59 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/16 02:46:00 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/22 06:16:10 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int builtin_exit(char **args)
 {
-     int exit_code;
+    int exit_code;
     
     printf("exit\n");
     

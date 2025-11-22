@@ -6,7 +6,6 @@ char *read_heredoc(char *delimiter)
     char    *filename;
     int     fd;
     
-    // Create temporary file
     filename = ft_strdup("./.heredoc_temp");
     fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd == -1)

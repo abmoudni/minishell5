@@ -13,7 +13,7 @@ CFLAGS = -Wall -Wextra # -Werror
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -lreadline libft/libft.a
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)  libft/libft.a -I/opt/homebrew/opt/readline/include -L/opt/homebrew/opt/readline/lib -lreadline
 
 clean:
 	rm -f $(OBJ)
