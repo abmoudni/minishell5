@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:07 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/23 05:47:00 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/23 14:13:30 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,39 +46,19 @@ void	execute_command(char *command, t_env_and_exit *shell)
 	int *saved_fds;
 	int status;
 	int size = 0;
-	printf(" command: %s\n", command);
 	// args = parse_command(command);
 	t_tokens *tokens = tokenize(command, &size);
 	if (check_simple_command(tokens) == 0)
 		return ;
 	args = tokens_to_array(tokens, size);
-	if (!args)
-		return ;
-	int i = 0;
-	while (args && args[i])
-	{
-		printf(" arg[%d]: %s\n", i, args[i]);
-		i++;
-	}
 	if (!args || !args[0])
 	{
 		free_array(args);
 		return ;
 	}
 
-	if (has_pipe(args))
-	{
-		char ***pipe_cmds = split_all_pipes(args);
-
-		if (pipe_cmds)
-		{
-			execute_pipeline(pipe_cmds, shell);
-			free_all_pipes(pipe_cmds);
-		}
-
-		free_array(args);
+	if (has_pipe(args, shell))
 		return ;
-	}
 
 	cmd = parse_cmd_with_redir(args);
 	if (!cmd)

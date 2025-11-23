@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/23 05:48:53 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/23 14:13:21 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ char    ***split_all_pipes(char **args);
 void    free_all_pipes(char ***cmds);
 void    execute_pipeline(char ***cmds, t_env_and_exit *shell);
 int     count_pipes(char **args);
-int     has_pipe(char **args);
+int     has_pipe(char **args, t_env_and_exit *shell);
 int     find_pipe(char **args);
 void    execute_pipe(char **cmd1, char **cmd2, t_env_and_exit *shell);
 
