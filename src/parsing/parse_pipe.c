@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/22 03:24:37 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/22 06:12:36 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/23 14:13:05 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,23 @@ int	count_pipes(char **args)
 	return (count);
 }
 
-int	has_pipe(char **args)
+int	has_pipe(char **args, t_env_and_exit *shell)
 {
-	return (count_pipes(args) > 0);
+	int flag;
+	flag = count_pipes(args);
+	if (flag > 0)
+	{
+		char ***pipe_cmds = split_all_pipes(args);
+
+		if (pipe_cmds)
+		{
+			execute_pipeline(pipe_cmds, shell);
+			free_all_pipes(pipe_cmds);
+		}
+
+		free_array(args);
+	}
+	return (flag > 0);
 }
 
 int	find_pipe(char **args)

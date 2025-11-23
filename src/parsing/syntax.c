@@ -11,8 +11,13 @@ int check_simple_command(t_tokens *tokens) {
         printf("Syntax error: command cannot start with '|'\n");
         return 0;
     }
+    int i = 0;
     while (tokens) {
-
+        if ((tokens->type >= 0 && tokens->type <= 3) && i == 0)
+        {
+            printf("missing first command\n");
+            return (0);
+        }
         if (tokens->type != TOKEN_WORD && tokens->type != TOKEN_PIPE)
         {
             if (!tokens->next) {
@@ -31,6 +36,7 @@ int check_simple_command(t_tokens *tokens) {
         }
         last = tokens;
         tokens = tokens->next;
+        i++;
     }
     if (last && last->type == TOKEN_PIPE) {
         printf("Syntax error: command cannot end with '|'\n");
