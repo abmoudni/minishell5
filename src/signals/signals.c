@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:24 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/24 00:37:37 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/24 00:48:16 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@ static void sigint_handler(int signum)
     (void)signum;
     g_signal = SIGINT;
     
-    rl_replace_line("", 0);
     write(1, "\n", 1);
     rl_on_new_line();
+    rl_replace_line("", 0);
     rl_redisplay();}
 
 void init_signals(void)
