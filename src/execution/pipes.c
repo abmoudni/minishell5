@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:10 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/24 00:18:40 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/24 14:42:47 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 	int **pipes;
 	pid_t *pids;
 	char *path;
-	int status;
 	t_cmd *cmd;
 
 	num_cmds = 0;
@@ -63,89 +62,99 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 		return ;
 	}
 
-	i = 0;
-	while (i < num_cmds)
-	{
-		cmd = parse_cmd_with_redir(cmds[i]);
-		if (!cmd)
-		{
-			i++;
-			continue ;
-		}
+	 i = 0;
+    while (i < num_cmds)
+    {
+        cmd = parse_cmd_with_redir(cmds[i]);
+        if (!cmd)
+        {
+            i++;
+            continue;
+        }
 
+        path = find_command_path(cmd->args[0], shell);
+        if (!path)
+        {
+            printf("minishell: %s: command not found\n", cmd->args[0]);
+            free_cmd(cmd);
+            i++;
+            continue;
+        }
 
-		path = find_command_path(cmd->args[0], shell);
-		if (!path)
-		{
-			printf("minishell> %s: command not found\n", cmd->args[0]);
-			free_cmd(cmd);
-			i++;
-			continue ;
-		}
+        pids[i] = fork();
+        if (pids[i] == -1)
+        {
+            perror("fork");
+            free(path);
+            free_cmd(cmd);
+            // Free remaining and exit
+            int j = 0;
+            while (j < num_cmds - 1)
+            {
+                close(pipes[j][0]);
+                close(pipes[j][1]);
+                free(pipes[j]);
+                j++;
+            }
+            free(pipes);
+            free(pids);
+            return;
+        }
 
-		pids[i] = fork();
-		if (pids[i] == -1)
-		{
-			perror("fork");
-			free(path);
-			free_cmd(cmd);
-			break ;
-		}
+        if (pids[i] == 0)
+        {
+            // Child - no need to free, will exit
+            reset_signals();
+            
+            if (i > 0)
+                dup2(pipes[i - 1][0], STDIN_FILENO);
 
-		if (pids[i] == 0)
-		{
-		    reset_signals();
-			if (i > 0)
-				dup2(pipes[i - 1][0], STDIN_FILENO);
+            if (i < num_cmds - 1)
+                dup2(pipes[i][1], STDOUT_FILENO);
 
-			if (i < num_cmds - 1)
-				dup2(pipes[i][1], STDOUT_FILENO);
+            int j = 0;
+            while (j < num_cmds - 1)
+            {
+                close(pipes[j][0]);
+                close(pipes[j][1]);
+                j++;
+            }
 
-			int j = 0;
-			while (j < num_cmds - 1)
-			{
-				close(pipes[j][0]);
-				close(pipes[j][1]);
-				j++;
-			}
+            if (cmd->redirs)
+            {
+                if (execute_redirections(cmd->redirs) == -1)
+                    exit(1);
+            }
 
-			if (cmd->redirs)
-			{
-				if (execute_redirections(cmd->redirs) == -1)
-					exit(1);
-			}
+            execve(path, cmd->args, shell->env);
+            perror("minishell");
+            exit(1);
+        }
 
-			execve(path, cmd->args, shell->env);
-			perror("minishell: ");
-			exit(1);
-		}
+        // Parent: free after fork
+        free(path);
+        free_cmd(cmd);
+        i++;
+    }
 
-		free(path);
-		free_cmd(cmd);
-		i++;
-	}
+    // Close all pipes
+    i = 0;
+    while (i < num_cmds - 1)
+    {
+        close(pipes[i][0]);
+        close(pipes[i][1]);
+        free(pipes[i]);
+        i++;
+    }
 
-	i = 0;
-	while (i < num_cmds - 1)
-	{
-		close(pipes[i][0]);
-		close(pipes[i][1]);
-		i++;
-	}
+    // Wait for all
+    i = 0;
+    while (i < num_cmds)
+    {
+        waitpid(pids[i], NULL, 0);
+        i++;
+    }
 
-	i = 0;
-	while (i < num_cmds)
-	{
-		waitpid(pids[i], &status, 0);
-		i++;
-	}
-
-	i = 0;
-	while (i < num_cmds - 1)
-	{
-		free(pipes[i]);
-		i++;
-	}
-	free(pipes);
-	free(pids);
+    free(pipes);
+    free(pids);
 }
