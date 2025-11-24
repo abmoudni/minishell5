@@ -8,7 +8,7 @@ char	*read_heredoc(char *delimiter)
 	char *filename;
 	int fd;
 
-	filename = ft_strdup("./.heredoc_temp");
+	filename = ft_strdup("/tmp/.heredoc_temp");
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 	{
@@ -18,7 +18,7 @@ char	*read_heredoc(char *delimiter)
 	}
 
 	while (1)
-	{
+	{	
 		input = readline("> ");
 		if (!input)
 			break ;
