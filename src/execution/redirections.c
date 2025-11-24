@@ -1,3 +1,4 @@
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -6,7 +7,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:14 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/23 21:48:47 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/22 06:13:26 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +64,8 @@ int	execute_output_redir(t_redir *redir)
 int	execute_input_redir(t_redir *redir)
 {
 	int		fd;
-	char *filename;
+	char	*filename;
+
 	if (redir->type == REDIR_HEREDOC)
 	{
 		filename = read_heredoc(redir->file);
@@ -71,10 +73,16 @@ int	execute_input_redir(t_redir *redir)
 			return (-1);
 		fd = open(filename, O_RDONLY);
 		if (fd == -1)
+		{
+			perror(filename);
+			unlink(filename);
+			free(filename);
 			return (-1);
-		
+		}
 		dup2(fd, 0);
 		close(fd);
+		unlink(filename);
+		free(filename);
 	}
 	else
 	{
