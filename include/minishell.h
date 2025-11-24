@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/24 00:16:57 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/24 14:44:15 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,6 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "../libft/libft.h"
-// ============= SIGNAL HANDLING =============
-// THE ONLY GLOBAL VARIABLE (for signal number)
 
 // ============= DATA STRUCTURES =============
 #define MAX_EXIT "255"
@@ -116,7 +114,7 @@ int run_builtin(char **args, t_env_and_exit *shell);
 int     builtin_echo(char **args);
 int     builtin_pwd();
 int builtin_env(char **args, t_env_and_exit *shell);
-void     builtin_exit(char **args);
+void builtin_exit(char **args, t_env_and_exit *shell);
 int builtin_cd(char **args);
 int     builtin_export(char **args, t_env_and_exit *shell);
 int     builtin_unset(char **args, t_env_and_exit *shell);
@@ -145,5 +143,5 @@ int     execute_redirections(t_redir *redirs);
 
 char	*read_heredoc(char *delimiter);
 int	ft_strcmp(char *s1, char *s2);
-
+void ft_perror(char *str);
 #endif

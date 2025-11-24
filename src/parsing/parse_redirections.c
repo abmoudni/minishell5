@@ -92,11 +92,12 @@ t_cmd	*parse_cmd_with_redir(char **args)
 		}
 		else
 		{
-			cmd->args[j] = args[i];
+			cmd->args[j] = ft_strdup(args[i]);
 			j++;
 			i++;
 		}
 	}
+	free_array(args);
 	cmd->args[j] = NULL;
 	return (cmd);
 }
@@ -109,7 +110,7 @@ void	free_cmd(t_cmd *cmd)
 	if (!cmd)
 		return ;
 	if (cmd->args)
-		free(cmd->args);
+		free_array(cmd->args);
 
 	redir = cmd->redirs;
 	while (redir)

@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:59 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/23 21:38:53 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/24 16:04:07 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,25 +58,38 @@ static int	ft_exit_check(char **args)
 	return (ft_help(args, i, sign));
 }
 
-void builtin_exit(char **args)
+void builtin_exit(char **args, t_env_and_exit *shell)
 {
-	int	flag;
+    int flag;
 
+    printf("exit\n");
+    
 	if (!args[1])
-		exit(0);
-
-	flag = ft_exit_check(args);
-
-	if (flag == -1)
 	{
-		printf("minishell: %s%s", args[1], NAR_ERROR);
-		flag = 2;
-	}
-	else if (flag == -2)
-	{
-		printf("%s", TMA_ERROR);
-		return ;
-	}
+        // Free environment before exit
+        if (shell && shell->env)
+            free_array(shell->env);
+        // Note: args will be freed by caller
+        exit(0);
+    }
 
-	exit(flag);
+    flag = ft_exit_check(args);
+
+    if (flag == -1)
+    {
+        printf("minishell: %s: numeric argument required\n", args[1]);
+        flag = 2;
+    }
+    else if (flag == -2)
+    {
+        printf("exit: too many arguments\n");
+        return;
+    }
+
+    // Free before exit!
+    free_array(args);
+    if (g_shell && g_shell->env)
+        free_array(g_shell->env);
+    
+    exit(flag);
 }
