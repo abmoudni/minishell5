@@ -13,26 +13,13 @@ int check_simple_command(t_tokens *tokens) {
     }
     int i = 0;
     while (tokens) {
+        
         if ((tokens->type >= 0 && tokens->type <= 3) && i == 0)
         {
-            printf("missing first command\n");
+            write(2, "-bash: syntax error near unexpected token ", 42);
+            write(2, tokens->value, 1);
+            write(2, "\n", 1);
             return (0);
-        }
-        if (tokens->type != TOKEN_WORD && tokens->type != TOKEN_PIPE)
-        {
-            if (!tokens->next) {
-                printf("Redirection '%s' missing target file\n", tokens->value);
-                return 0;
-            }
-            if (tokens->next->type != TOKEN_WORD) {
-                printf("Redirection '%s' must be followed by a filename\n", tokens->value);
-                return 0;
-            }
-        }
-        if (tokens->type == TOKEN_PIPE && (!tokens->next || tokens->next->type == TOKEN_PIPE)) 
-        {
-            printf("Syntax error: invalid pipe usage\n");
-            return 0;
         }
         last = tokens;
         tokens = tokens->next;
