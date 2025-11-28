@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:01 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/24 14:41:50 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/28 17:58:39 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,15 @@ int builtin_export(char **args, t_env_and_exit *shell)
     i = 1;
     while (args[i])
     {
+        if (args[i][0] == '=')
+        {
+            // Case: "export ="
+            ft_perror("minishell: export: `");
+            ft_perror(args[i]);
+            ft_perror("': not a valid identifier\n");
+            i++;
+            break;
+        }
         equal_sign = ft_strchr(args[i], '=');
         if (!equal_sign)
         {

@@ -1,16 +1,34 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   pipes.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/16 02:46:10 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/27 13:42:50 by mtawil           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+// /* ************************************************************************** */
+// /*                                                                            */
+// /*                                                        :::      ::::::::   */
+// /*   pipes.c                                            :+:      :+:    :+:   */
+// /*                                                    +:+ +:+         +:+     */
+// /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
+// /*                                                +#+#+#+#+#+   +#+           */
+// /*   Created: 2025/11/16 02:46:10 by mtawil            #+#    #+#             */
+// /*   Updated: 2025/11/27 13:42:50 by mtawil           ###   ########.fr       */
+// /*                                                                            */
+// /* ************************************************************************** */
 
 #include "../../include/minishell.h"
+
+// Helper function to use cat when there's only redirection
+static char *get_default_command(t_cmd *cmd)
+{
+	// If we have only redirections and no command, use cat
+	if (!cmd->args[0] && cmd->redirs)
+	{
+		// Create a new args array with "cat" as the command
+		char **new_args = malloc(sizeof(char *) * 2);
+		if (!new_args)
+			return NULL;
+		new_args[0] = ft_strdup("cat");
+		new_args[1] = NULL;
+		cmd->args = new_args;
+		return ft_strdup("cat");
+	}
+	return NULL;
+}
 
 void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 {
@@ -20,6 +38,7 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 	pid_t *pids;
 	char *path;
 	t_cmd *cmd;
+	int should_free_args;
 
 	num_cmds = 0;
 	while (cmds[num_cmds])
@@ -62,100 +81,174 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 		return ;
 	}
 
-	 i = 0;
-    while (i < num_cmds)
-    {
-        cmd = parse_cmd_with_redir(cmds[i]);
-        if (!cmd)
-        {
-            i++;
-            continue;
-        }
+	i = 0;
+	while (i < num_cmds)
+	{
+		should_free_args = 0;
+		cmd = parse_cmd_with_redir(cmds[i]);
+		if (!cmd)
+		{
+			i++;
+			continue;
+		}
 
-        path = find_command_path(cmd->args[0], shell);
-        if (!path)
-        {
-            ft_perror(cmd->args[0]);
-            ft_perror(": command not found\n");
-            free_cmd(cmd);
-            i++;
-            continue;
-        }
-
-        pids[i] = fork();
-        if (pids[i] == -1)
-        {
-            perror("fork");
-            free(path);
-            free_cmd(cmd);
-            // Free remaining and exit
-            int j = 0;
-            while (j < num_cmds - 1)
+		// Handle case where we have only redirections (like "<< EOF |")
+		if (!cmd->args[0])
+		{
+			char *default_cmd = get_default_command(cmd);
+			if (default_cmd)
+			{
+				path = default_cmd;
+				should_free_args = 1; // We allocated new args, need to free them
+			}
+			else
+			{
+				ft_perror("minishell: syntax error near pipe\n");
+				free_cmd(cmd);
+				int j = 0;
+				while (j < num_cmds - 1)
+				{
+					close(pipes[j][0]);
+					close(pipes[j][1]);
+					free(pipes[j]);
+					j++;
+				}
+				free(pipes);
+				free(pids);
+				return;
+			}
+		}
+		else
+		{
+            // is builtind Double Lines 
+            // convert into function
+            // TODO
+            int *saved_fds;
+            if (is_builtin(cmd->args[0]))
             {
-                close(pipes[j][0]);
-                close(pipes[j][1]);
-                free(pipes[j]);
-                j++;
+                
+                saved_fds = save_std_fds();
+
+                if (cmd->redirs)
+                {
+                    if (execute_redirections(cmd->redirs) == -1)
+                    {
+                        restore_std_fds(saved_fds);
+                        free_cmd(cmd);
+                        shell->last_exit = 1;
+                    }
+                }
+
+                shell->last_exit = run_builtin(cmd->args, shell);
+
+                restore_std_fds(saved_fds);
+                free_cmd(cmd);
+                i++;
+                continue;
             }
-            free(pipes);
-            free(pids);
-            return;
-        }
+			path = find_command_path(cmd->args[0], shell);
+			if (!path)
+			{
+                ft_perror("minishell: ");
+				ft_perror(cmd->args[0]);
+				ft_perror(": command not found\n");
+				free_cmd(cmd);
+                pids[i] = fork();
+				if (pids[i] == 0)
+				{
+					// Child process - just exit with 127
+					exit(127);
+				}
+				i++;
+				continue;
+			}
+		}
 
-        if (pids[i] == 0)
-        {
-            // Child - no need to free, will exit
-            reset_signals();
-            
-            if (i > 0)
-                dup2(pipes[i - 1][0], STDIN_FILENO);
+		pids[i] = fork();
+		if (pids[i] == -1)
+		{
+			perror("fork");
+			free(path);
+			if (should_free_args && cmd->args)
+			{
+				free_array(cmd->args);
+				cmd->args = NULL;
+			}
+			free_cmd(cmd);
+			int j = 0;
+			while (j < num_cmds - 1)
+			{
+				close(pipes[j][0]);
+				close(pipes[j][1]);
+				free(pipes[j]);
+				j++;
+			}
+			free(pipes);
+			free(pids);
+			return;
+		}
 
-            if (i < num_cmds - 1)
-                dup2(pipes[i][1], STDOUT_FILENO);
+		if (pids[i] == 0)
+		{
+			reset_signals();
+			
+			if (i > 0)
+				dup2(pipes[i - 1][0], STDIN_FILENO);
 
-            int j = 0;
-            while (j < num_cmds - 1)
-            {
-                close(pipes[j][0]);
-                close(pipes[j][1]);
-                j++;
-            }
+			if (i < num_cmds - 1)
+				dup2(pipes[i][1], STDOUT_FILENO);
 
-            if (cmd->redirs)
-            {
-                if (execute_redirections(cmd->redirs) == -1)
-                    exit(1);
-            }
+			int j = 0;
+			while (j < num_cmds - 1)
+			{
+				close(pipes[j][0]);
+				close(pipes[j][1]);
+				j++;
+			}
 
-            execve(path, cmd->args, shell->env);
-            perror("minishell");
-            exit(1);
-        }
+			if (cmd->redirs)
+			{
+				if (execute_redirections(cmd->redirs) == -1)
+					exit(1);
+			}
 
-        // Parent: free after fork
-        free(path);
-        free_cmd(cmd);
-        i++;
-    }
+			execve(path, cmd->args, shell->env);
+			perror("minishell");
+			exit(1);
+		}
 
-    // Close all pipes
-    i = 0;
-    while (i < num_cmds - 1)
-    {
-        close(pipes[i][0]);
-        close(pipes[i][1]);
-        free(pipes[i]);
-        i++;
-    }
+		free(path);
+		if (should_free_args && cmd->args)
+		{
+			free_array(cmd->args);
+			cmd->args = NULL;
+		}
+		free_cmd(cmd);
+		i++;
+	}
 
-    // Wait for all
-    i = 0;
-    while (i < num_cmds)
-    {
-        waitpid(pids[i], NULL, 0);
-        i++;
-    }
+	i = 0;
+	while (i < num_cmds - 1)
+	{
+		close(pipes[i][0]);
+		close(pipes[i][1]);
+		free(pipes[i]);
+		i++;
+	}
 
-    free(pipes);
-    free(pids);
+	i = 0;
+    int status;
+	while (i < num_cmds)
+	{
+		waitpid(pids[i], &status, 0);
+        if (WIFEXITED(status))
+			shell->last_exit = WEXITSTATUS(status);
+		else
+			shell->last_exit = 1;
+        
+		i++;
+	}
+
+	free(pipes);
+	free(pids);
 }
