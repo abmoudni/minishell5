@@ -1,4 +1,3 @@
-
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -7,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:14 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/22 06:13:26 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/28 15:36:01 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +69,10 @@ int	execute_input_redir(t_redir *redir)
 	{
 		filename = read_heredoc(redir->file);
 		if (!filename)
+		{
+			ft_perror("minishell: heredoc: interrupted\n");
 			return (-1);
+		}
 		fd = open(filename, O_RDONLY);
 		if (fd == -1)
 		{
@@ -79,14 +81,22 @@ int	execute_input_redir(t_redir *redir)
 			free(filename);
 			return (-1);
 		}
-		dup2(fd, 0);
+		if (dup2(fd, STDIN_FILENO) == -1)
+		{
+			perror("dup2");
+			close(fd);
+			unlink(filename);
+			free(filename);
+			return (-1);
+		}
 		close(fd);
 		unlink(filename);
 		free(filename);
 	}
 	else
 	{
-		if ((fd = open(redir->file, O_RDONLY)) == -1)
+		fd = open(redir->file, O_RDONLY);
+		if (fd == -1)
 		{
 			perror(redir->file);
 			return (-1);

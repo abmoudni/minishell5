@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:07 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/27 15:58:59 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/28 15:49:15 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ static int look_for_directories(char *args)
 	return (0);
 }
 // /x - x/
-static int parse_cmd_dirs(char **args)
+static int parse_cmd_dirs(char **args, t_env_and_exit *shell)
 {
     if (access(args[0], X_OK) == 0)
         return (0);
@@ -118,7 +118,10 @@ static int parse_cmd_dirs(char **args)
     if ((ft_strcmp(args[0], "/") == 0) || (ft_strcmp(args[0], "//") == 0) || (ft_strcmp(args[0], "/.") == 0))
         stat = 1;
     if (stat == -1)
+    {
+        shell->last_exit = 127;
         return (ft_perror(": No such file or directory\n"), -1); 
+    }
     else if (stat == 1)
         return (ft_perror(": Is a directory\n"), -1);
     else if (stat == 2)
@@ -156,7 +159,7 @@ void execute_command(char *command, t_env_and_exit *shell)
         return;
     }
     
-    if (parse_cmd_dirs(args) == -1)
+    if (parse_cmd_dirs(args, shell) == -1)
     {
         free_array(args);
         return;
