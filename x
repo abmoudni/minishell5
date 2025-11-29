@@ -1,0 +1,14 @@
+Dockerfile
+Makefile
+ama
+docker-compose.yml
+docker.sh
+include
+libft
+minishell
+r.supp
+run.sh
+src
+test.c
+test_ctrlc.txt
+x

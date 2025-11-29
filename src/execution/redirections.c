@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:14 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/28 15:36:01 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/29 01:56:01 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,36 +64,66 @@ int	execute_input_redir(t_redir *redir)
 {
 	int		fd;
 	char	*filename;
+	int		should_unlink;
 
+	should_unlink = 0;
 	if (redir->type == REDIR_HEREDOC)
 	{
-		filename = read_heredoc(redir->file);
-		if (!filename)
+		// CRITICAL FIX: Check if this is already a processed heredoc temp file
+		if (ft_strncmp(redir->file, "/tmp/.heredoc_temp_", 19) == 0)
 		{
-			ft_perror("minishell: heredoc: interrupted\n");
-			return (-1);
+			// Already processed in parent! Just use the filename
+			filename = redir->file;
+			should_unlink = 1;  // We should unlink after use
 		}
+		else
+		{
+			// Not yet processed, read heredoc now (non-pipeline case)
+			filename = read_heredoc(redir->file);
+			if (!filename)
+			{
+				ft_perror("minishell: heredoc: interrupted\n");
+				return (-1);
+			}
+			should_unlink = 1;
+		}
+		
 		fd = open(filename, O_RDONLY);
 		if (fd == -1)
 		{
 			perror(filename);
-			unlink(filename);
-			free(filename);
+			if (should_unlink && filename != redir->file)
+			{
+				unlink(filename);
+				free(filename);
+			}
 			return (-1);
 		}
+		
 		if (dup2(fd, STDIN_FILENO) == -1)
 		{
 			perror("dup2");
 			close(fd);
-			unlink(filename);
-			free(filename);
+			if (should_unlink && filename != redir->file)
+			{
+				unlink(filename);
+				free(filename);
+			}
 			return (-1);
 		}
+		
 		close(fd);
-		unlink(filename);
-		free(filename);
+		
+		// Clean up temp file
+		if (should_unlink)
+		{
+			unlink(filename);
+			// Only free if we allocated it (not if it's redir->file)
+			if (filename != redir->file)
+				free(filename);
+		}
 	}
-	else
+	else  // REDIR_IN - normal file redirect
 	{
 		fd = open(redir->file, O_RDONLY);
 		if (fd == -1)
