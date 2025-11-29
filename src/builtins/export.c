@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:01 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/28 20:43:31 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/28 23:57:00 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ static int is_name_valid(char *name)
     }
     return (1);
 }
+
 int builtin_export(char **args, t_env_and_exit *shell)
 {
     char *equal_sign;
@@ -45,6 +46,9 @@ int builtin_export(char **args, t_env_and_exit *shell)
     char *value;
     char *clean_value;
     int i;
+    int ret;  // CRITICAL FIX: Initialize ret variable
+    
+    ret = 0;  // CRITICAL FIX: Initialize to 0
     
     if (!args[1])
     {
@@ -58,7 +62,6 @@ int builtin_export(char **args, t_env_and_exit *shell)
     }
     
     i = 1;
-    int ret;
     while (args[i])
     {
         if (args[i][0] == '=')

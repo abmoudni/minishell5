@@ -6,7 +6,19 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:25 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/28 21:09:35 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/29 00:01:44 by mtawil           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   syntax.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/16 02:46:25 by mtawil            #+#    #+#             */
+/*   Updated: 2025/11/28 by claude                   ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +35,9 @@ static int	check_first_token(t_tokens *tokens)
 	{
 		ft_perror("minishell: syntax error near unexpected token `|'\n");
 		return (0);
-	}else if(ft_strcmp(tokens->value, ":") == 0 || ft_strcmp(tokens->value, "!") == 0)
-        return (0);
+	}
+	else if(ft_strcmp(tokens->value, ":") == 0 || ft_strcmp(tokens->value, "!") == 0)
+		return (0);
 	return (1);
 }
 
@@ -42,15 +55,22 @@ static int	check_pipe_or_redir(t_tokens *current)
 	{
 		if (!current->next || current->next->type != TOKEN_WORD)
 		{
-            if (ft_strlen(current->value) == 2 && current->type != REDIR_HEREDOC)
-            {
-                char *tmp = ft_substr(current->value, 0, 2);
-                ft_perror("minishell: syntax error near unexpected token '");
-                ft_perror(tmp);
-                ft_perror("'\n");
-                free(tmp);
-            }else if (current->type != REDIR_HEREDOC && (current->next)->type != TOKEN_WORD)
-                ft_perror("minishell: syntax error near unexpected token `newline'\n");
+			// CRITICAL FIX: The issue is HERE!
+			// When current->value is ">", ft_strlen is 1, not 2
+			// So ft_substr(">", 0, 2) tries to read beyond the string!
+			
+			if (current->type != REDIR_HEREDOC && current->next && current->next->type != TOKEN_WORD)
+			{
+				// This is for cases like "> >" (redirect to another redirect)
+				ft_perror("minishell: syntax error near unexpected token `");
+				ft_perror(current->next->value);
+				ft_perror("'\n");
+			}
+			else if (!current->next)
+			{
+				// This is for cases like "> " at end of line
+				ft_perror("minishell: syntax error near unexpected token `newline'\n");
+			}
 			return (0);
 		}
 	}

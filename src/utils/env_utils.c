@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:28 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/28 20:36:15 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/28 23:57:30 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,21 +66,21 @@ int	set_env_value(char *name, char *value, t_env_and_exit *shell)
 	char	**new_env;
 	int		count;
 
-	if (value[0])
-		temp = ft_strjoin(name, "=");
-	else
-		temp = ft_strjoin(name, "");
-	
+	// CRITICAL FIX: Always add '=' for proper env format
+	temp = ft_strjoin(name, "=");
 	if (!temp)
 		return (1);
+	
 	new_var = ft_strjoin(temp, value);
 	free(temp);
 	if (!new_var)
 		return (1);
+	
 	i = 0;
 	while (shell->env[i])
 	{
-		if (ft_strncmp(shell->env[i], name, ft_strlen(name)) == 0)
+		if (ft_strncmp(shell->env[i], name, ft_strlen(name)) == 0
+			&& shell->env[i][ft_strlen(name)] == '=')
 		{
 			free(shell->env[i]);
 			shell->env[i] = new_var;
@@ -88,15 +88,18 @@ int	set_env_value(char *name, char *value, t_env_and_exit *shell)
 		}
 		i++;
 	}
+	
 	count = 0;
 	while (shell->env[count])
 		count++;
+	
 	new_env = malloc(sizeof(char *) * (count + 2));
 	if (!new_env)
 	{
 		free(new_var);
 		return (1);
 	}
+	
 	i = 0;
 	while (i < count)
 	{
