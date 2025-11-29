@@ -1,11 +1,28 @@
+
 #include "../../include/minishell.h"
 
 t_tokens *create_token(char *str, int fla) {
-    t_tokens *new = malloc(sizeof(t_tokens));
-    if (!new) return NULL;
-    char *tmp = remove_quotes(str);
-    if (!tmp)
-        return (NULL);
+    t_tokens *new;
+    char *tmp;
+    
+    if (!str)
+        return NULL;
+    
+    new = malloc(sizeof(t_tokens));
+    if (!new)
+    {
+        free(str);
+        return NULL;
+    }
+    
+    tmp = remove_quotes(str);
+    if (!tmp)  // CRITICAL FIX: Check if remove_quotes failed
+    {
+        free(new);
+        free(str);
+        return NULL;
+    }
+    
     new->value = tmp;
     free(str);
     new->flag  = fla;
@@ -14,6 +31,9 @@ t_tokens *create_token(char *str, int fla) {
 }
 
 void add_token(t_tokens **head, t_tokens *new_token) {
+    if (!new_token)  // Safety check
+        return;
+        
     if (!*head)
         *head = new_token;
     else {
@@ -32,7 +52,6 @@ void print_tokens(t_tokens *head) {
         current = current->next;
     }
 }
-
 
 int is_operator_start(char c) {
     return (c == '>' || c == '<' || c == '|');
@@ -79,13 +98,16 @@ char *get_quoted_token(const char *line, int *i, int *fla) {
 char *get_word_token(const char *line, int *i) {
     int start = *i;
     char c;
+    
     while (line[*i] && !ft_isspace(line[*i]) && !is_operator_start(line[*i])) {
         if (line[*i] == '"' || line[*i] == '\'')
         {
             c = line[*i];
             (*i)++;
+            // CRITICAL FIX: Check for NULL before comparing
             while(line[*i] && line[*i] != c)
                 (*i)++;
+            // Only increment if we found the closing quote
             if (line[*i] == c)
                 (*i)++;
         }
@@ -94,25 +116,8 @@ char *get_word_token(const char *line, int *i) {
     }
     return ft_strndup(line + start, *i - start);
 }
-// int (const char *line) {
-//     int i = 0;
-//    char quote = 0;
-//     while (line[i]) {
-//         if ((line[i] == '"' || line[i] == '\'') && quote == 0)
-//         quote = line[i];
-//         else if (line[i] == quote)
-//             quote = 0;
-//         i++;
-//     }
-//     if (quote != 0) {
-//         printf("minishell: error: unclosed %c quote\n", quote);
-//         return 1;
-//     }
-//     return 0;
-// }
 
 void check_token(t_tokens *tokens) {
-
     while(tokens){
         if (ft_strcmp(tokens->value, "<") == 0)
             tokens->type = REDIR_IN;
@@ -133,9 +138,9 @@ void check_token(t_tokens *tokens) {
 t_tokens *tokenize(const char *line, int *size) {
     int i = 0;
     t_tokens *tokens = NULL;
-
     char *token = NULL;
     int fla;
+    t_tokens *new_tok;
 
     while (line[i]) {
         while (ft_isspace(line[i]))
@@ -148,13 +153,20 @@ t_tokens *tokenize(const char *line, int *size) {
             token = get_operator_token(line, &i);
         else
             token = get_word_token(line, &i);
-        if (!token)
+        
+        if (!token)  // Safety check
             break;
-        add_token(&tokens, create_token(token, fla));
+        
+        new_tok = create_token(token, fla);
+        if (!new_tok)  // CRITICAL FIX: Check if create_token failed
+            break;
+        
+        add_token(&tokens, new_tok);
         (*size)++;
     }
 
-    check_token(tokens);
+    if (tokens)
+        check_token(tokens);
                     
     return tokens;
 }
