@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 15:34:17 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/29 14:38:48 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/29 15:31:19 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,23 @@ char	*read_heredoc(char *delimiter)
 	{
 		input = readline("> ");
 		
-		// CRITICAL FIX: Handle Ctrl+D (NULL input)
-		// Ctrl+D should just end THIS heredoc, not be treated as an error
+		// CRITICAL FIX: Check if Ctrl+C was pressed
+		// Even though readline doesn't return immediately, we check after each return
+		if (g_signal == SIGINT)
+		{
+			// Ctrl+C pressed - cleanup and return NULL
+			if (input)
+				free(input);
+			close(fd);
+			unlink(filename);
+			free(filename);
+			g_signal = 0;
+			return (NULL);
+		}
+		
+		// Handle Ctrl+D (NULL input)
 		if (!input)
 		{
-			// Don't print newline here - bash doesn't
 			break ;
 		}
 		
