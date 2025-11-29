@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:07 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/29 14:44:48 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/29 15:11:27 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ static int preprocess_heredocs(char **args)
 			temp_file = read_heredoc(args[i + 1]);
 			if (!temp_file)
 			{
-				// Heredoc was interrupted (Ctrl+D)
+				// Heredoc was interrupted (Ctrl+D or Ctrl+C)
 				return (-1);
 			}
 			
@@ -202,6 +202,16 @@ void execute_command(char *command, t_env_and_exit *shell)
 	if (preprocess_heredocs(args) == -1)
 	{
 		free_array(args);
+		// Set exit status to 130 if Ctrl+C was pressed
+		if (g_signal == SIGINT)
+		{
+			shell->last_exit = 130;
+			g_signal = 0;
+		}
+		else
+		{
+			shell->last_exit = 1;
+		}
 		return;
 	}
 
@@ -236,6 +246,7 @@ void execute_command(char *command, t_env_and_exit *shell)
                 free_cmd(cmd);
                 free_array(args);
                 shell->last_exit = 1;
+				return;
             }
         }
 

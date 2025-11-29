@@ -6,14 +6,13 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:24 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/29 00:16:59 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/29 15:31:14 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
 volatile sig_atomic_t g_signal = 0;
-void rl_replace_line(const char *text, int clear_undo);
 
 static void sigint_handler(int signum)
 {

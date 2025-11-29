@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:10 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/29 14:44:46 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/29 15:11:38 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,7 @@ static int process_all_heredocs(char ***cmds, int num_cmds)
 				temp_file = read_heredoc(cmds[i][j + 1]);
 				if (!temp_file)
 				{
-					// Ctrl+D was pressed - heredoc interrupted
-					// This is not necessarily an error, just creates empty file
-					// But for now, treat as error to match bash behavior
+					// Ctrl+D or Ctrl+C was pressed - heredoc interrupted
 					return (-1);
 				}
 				
@@ -86,7 +84,19 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 
 	// CRITICAL FIX: Process ALL heredocs FIRST, modifying the cmds array
 	if (process_all_heredocs(cmds, num_cmds) == -1)
+	{
+		// Set exit status to 130 if Ctrl+C was pressed
+		if (g_signal == SIGINT)
+		{
+			shell->last_exit = 130;
+			g_signal = 0;
+		}
+		else
+		{
+			shell->last_exit = 1;
+		}
 		return;
+	}
 
 	pipes = malloc(sizeof(int *) * (num_cmds - 1));
 	if (!pipes)
