@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/22 03:24:37 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/23 14:58:16 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/29 01:56:30 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,14 +107,37 @@ char	***split_all_pipes(char **args)
 void	free_all_pipes(char ***cmds)
 {
 	int	i;
+	int	j;
 
 	if (!cmds)
 		return ;
+	
 	i = 0;
 	while (cmds[i])
 	{
-		free(cmds[i]);
+		// CRITICAL FIX: Free heredoc temp filenames before freeing the array
+		j = 0;
+		while (cmds[i][j])
+		{
+			// Check if this is a heredoc temp file that we allocated
+			if (ft_strncmp(cmds[i][j], "/tmp/.heredoc_temp_", 19) == 0)
+			{
+				free(cmds[i][j]);  // Free the temp filename string
+			}
+			// Note: We DON'T free other strings because they're owned by args[]
+			j++;
+		}
+		
+		free(cmds[i]);  // Free the char* array
 		i++;
 	}
-	free(cmds);
+	free(cmds);  // Free the char** array
 }
+
+
+
+
+
+
+
+

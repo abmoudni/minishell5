@@ -1,24 +1,22 @@
-// /* ************************************************************************** */
-// /*                                                                            */
-// /*                                                        :::      ::::::::   */
-// /*   pipes.c                                            :+:      :+:    :+:   */
-// /*                                                    +:+ +:+         +:+     */
-// /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
-// /*                                                +#+#+#+#+#+   +#+           */
-// /*   Created: 2025/11/16 02:46:10 by mtawil            #+#    #+#             */
-// /*   Updated: 2025/11/27 13:42:50 by mtawil           ###   ########.fr       */
-// /*                                                                            */
-// /* ************************************************************************** */
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipes.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/16 02:46:10 by mtawil            #+#    #+#             */
+/*   Updated: 2025/11/29 02:29:27 by mtawil           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
 // Helper function to use cat when there's only redirection
 static char *get_default_command(t_cmd *cmd)
 {
-	// If we have only redirections and no command, use cat
 	if (!cmd->args[0] && cmd->redirs)
 	{
-		// Create a new args array with "cat" as the command
 		char **new_args = malloc(sizeof(char *) * 2);
 		if (!new_args)
 			return NULL;
@@ -28,6 +26,39 @@ static char *get_default_command(t_cmd *cmd)
 		return ft_strdup("cat");
 	}
 	return NULL;
+}
+
+// CRITICAL FIX: Replace heredoc delimiters with temp filenames IN THE ORIGINAL ARRAY
+static int process_all_heredocs(char ***cmds, int num_cmds)
+{
+	int i, j;
+	char *temp_file;
+	
+	i = 0;
+	while (i < num_cmds)
+	{
+		j = 0;
+		while (cmds[i][j])
+		{
+			if (ft_strcmp(cmds[i][j], "<<") == 0 && cmds[i][j + 1])
+			{
+				// Read heredoc
+				temp_file = read_heredoc(cmds[i][j + 1]);
+				if (!temp_file)
+					return (-1);
+				
+				// CRITICAL: Just replace the pointer, DON'T free!
+				// The original string is owned by args array
+				cmds[i][j + 1] = temp_file;
+				
+				// DON'T change "<<" to "<"
+				// Leave it as is, execute_input_redir will handle it
+			}
+			j++;
+		}
+		i++;
+	}
+	return (0);
 }
 
 void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
@@ -46,6 +77,10 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 
 	if (num_cmds == 0)
 		return ;
+
+	// CRITICAL FIX: Process ALL heredocs FIRST, modifying the cmds array
+	if (process_all_heredocs(cmds, num_cmds) == -1)
+		return;
 
 	pipes = malloc(sizeof(int *) * (num_cmds - 1));
 	if (!pipes)
@@ -91,7 +126,12 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 			i++;
 			continue;
 		}
-
+        if (cmd->args && !cmd->args[0])
+        {
+            free_cmd(cmd);
+            i++;
+            continue;
+        }
 		// Handle case where we have only redirections (like "<< EOF |")
 		if (cmd->args && !cmd->args[0])
 		{
@@ -99,7 +139,7 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 			if (default_cmd)
 			{
 				path = default_cmd;
-				should_free_args = 1; // We allocated new args, need to free them
+				should_free_args = 1;
 			}
 			else
 			{
@@ -120,45 +160,38 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 		}
 		else
 		{
-            // is builtind Double Lines 
-            // convert into function
-            // TODO
-			printf("here\n");
 			int *saved_fds;
-            if (is_builtin(cmd->args[0]))
-            {
-			printf("builtin\n");
-                
-                saved_fds = save_std_fds();
+			if (is_builtin(cmd->args[0]))
+			{
+				saved_fds = save_std_fds();
 
-                if (cmd->redirs)
-                {
-                    if (execute_redirections(cmd->redirs) == -1)
-                    {
-                        restore_std_fds(saved_fds);
-                        free_cmd(cmd);
-                        shell->last_exit = 1;
-                    }
-                }
+				if (cmd->redirs)
+				{
+					if (execute_redirections(cmd->redirs) == -1)
+					{
+						restore_std_fds(saved_fds);
+						free_cmd(cmd);
+						shell->last_exit = 1;
+					}
+				}
 
-                shell->last_exit = run_builtin(cmd->args, shell);
+				shell->last_exit = run_builtin(cmd->args, shell);
 
-                restore_std_fds(saved_fds);
-                free_cmd(cmd);
-                i++;
-                continue;
-            }
+				restore_std_fds(saved_fds);
+				free_cmd(cmd);
+				i++;
+				continue;
+			}
 			path = find_command_path(cmd->args[0], shell);
 			if (!path)
 			{
-                ft_perror("minishell: ");
+				ft_perror("minishell: ");
 				ft_perror(cmd->args[0]);
 				ft_perror(": command not found\n");
 				free_cmd(cmd);
-                pids[i] = fork();
+				pids[i] = fork();
 				if (pids[i] == 0)
 				{
-					// Child process - just exit with 127
 					exit(127);
 				}
 				i++;
@@ -239,15 +272,15 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 	}
 
 	i = 0;
-    int status;
+	int status;
 	while (i < num_cmds)
 	{
 		waitpid(pids[i], &status, 0);
-        if (WIFEXITED(status))
+		if (WIFEXITED(status))
 			shell->last_exit = WEXITSTATUS(status);
 		else
 			shell->last_exit = 1;
-        
+		
 		i++;
 	}
 
