@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:28 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/28 23:57:30 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/30 11:42:36 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,24 +58,22 @@ char	*get_env_value(char *name, t_env_and_exit *shell)
 	return (NULL);
 }
 
-int	set_env_value(char *name, char *value, t_env_and_exit *shell)
+// our plan is to devide set_env_value into small
+// functions less than 25 lines each ok
+static char	*update_the_value(char *temp, char *value, t_env_and_exit *shell,
+		char *name)
 {
 	char	*new_var;
-	char	*temp;
 	int		i;
-	char	**new_env;
-	int		count;
 
-	// CRITICAL FIX: Always add '=' for proper env format
-	temp = ft_strjoin(name, "=");
-	if (!temp)
-		return (1);
-	
 	new_var = ft_strjoin(temp, value);
-	free(temp);
+	if (value && value[0] != '\0')
+		free(temp);
 	if (!new_var)
-		return (1);
-	
+	{
+		shell->err = 1;
+		return (NULL);
+	}
 	i = 0;
 	while (shell->env[i])
 	{
@@ -84,22 +82,29 @@ int	set_env_value(char *name, char *value, t_env_and_exit *shell)
 		{
 			free(shell->env[i]);
 			shell->env[i] = new_var;
-			return (0);
+			shell->err = 0;
+			return (NULL);
 		}
 		i++;
 	}
-	
+	return (new_var);
+}
+
+static char	**re_create_env(t_env_and_exit *shell, char *new_var)
+{
+	int		count;
+	char	**new_env;
+	int		i;
+
 	count = 0;
 	while (shell->env[count])
 		count++;
-	
 	new_env = malloc(sizeof(char *) * (count + 2));
 	if (!new_env)
 	{
 		free(new_var);
-		return (1);
+		return (NULL);
 	}
-	
 	i = 0;
 	while (i < count)
 	{
@@ -108,6 +113,29 @@ int	set_env_value(char *name, char *value, t_env_and_exit *shell)
 	}
 	new_env[i] = new_var;
 	new_env[i + 1] = NULL;
+	return (new_env);
+}
+
+int	set_env_value(char *name, char *value, t_env_and_exit *shell)
+{
+	char	*new_var;
+	char	*temp;
+	char	**new_env;
+
+	shell->err = 0;
+	if (value && value[0] != '\0')
+		temp = ft_strjoin(name, "=");
+	if (!temp)
+		return (1);
+	new_var = update_the_value(temp, value, shell, name);
+	if (!new_var)
+		return (shell->err);
+	new_env = re_create_env(shell, new_var);
+	if (!new_env)
+	{
+		free(new_var);
+		return (1);
+	}
 	free(shell->env);
 	shell->env = new_env;
 	return (0);

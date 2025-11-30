@@ -10,20 +10,20 @@ SRC = ./src/ft_fnc/ft_strcmp.c ./src/ft_fnc/ft_perror.c ./src/signals/signals.c 
 OBJ = ${SRC:.c=.o}
 
 CC = cc
-CFLAGS = -Wall -Wextra  -Werror
+CFLAGS = -Wall #-Wextra  -Werror
 
 LIBFT_DIR = ./libft
 LIBFT = ${LIBFT_DIR}/libft.a
 all: $(NAME)
 
 ${LIBFT}:
-	${MAKE} -C ${LIBFT_DIR}
+	@${MAKE} -C ${LIBFT_DIR}
 
 $(NAME): $(OBJ) ${LIBFT}
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)  ${LIBFT} -I/opt/homebrew/opt/readline/include -L/opt/homebrew/opt/readline/lib -lreadline
+	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)  ${LIBFT} -I/opt/homebrew/opt/readline/include -L/opt/homebrew/opt/readline/lib -lreadline
 
 clean:
-	${MAKE} clean -C ${LIBFT_DIR}
+	@${MAKE} clean -C ${LIBFT_DIR}
 	rm -f $(OBJ)
 
 fclean: clean

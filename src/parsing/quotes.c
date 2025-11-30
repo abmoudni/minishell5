@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:22 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/29 00:01:47 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/30 10:47:31 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ char *remove_quotes(char *str)
     return (result);
 }
 
-int check_unclosed_quotes(const char *line){
+int check_unclosed_quotes(char *line){
 
     int i = 0;
     char c;
@@ -77,7 +77,11 @@ int check_unclosed_quotes(const char *line){
             while (line[i] != c && line[i])
                 i++;
             if (!line[i])
+            {
+                ft_perror("error: unclosed quotes\n");
+                free(line);
                 return (-1);
+            }
             i++;
         }
         else

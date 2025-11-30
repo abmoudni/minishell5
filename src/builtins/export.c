@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:01 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/28 23:57:00 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/30 11:43:33 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,9 @@ int builtin_export(char **args, t_env_and_exit *shell)
                 ft_perror("': not a valid identifier\n");
                 ret = 1;
             }
+            shell->err = 10;
+            set_env_value(args[i], "", shell);
+            shell->err = 0;
             i++;
             continue;
         }
