@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/11/29 15:30:24 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/11/30 11:30:39 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef struct s_env_exit
 {
     char    **env;
     int     last_exit;
+    int     err;
 }   t_env_and_exit;
 
 typedef struct s_fd 
@@ -86,7 +87,7 @@ void    reset_signals(void);
 void init_signals_child_exec(void);
 // ============ TOKENIZER Moudnib =============
 t_tokens *tokenize(const char *line, int *size);
-int check_unclosed_quotes(const char *line);
+int check_unclosed_quotes(char *line);
 int check_simple_command(t_tokens *tokens);
 char *ft_strndup(const char *s, size_t n);
 int ft_isspace(char c);
