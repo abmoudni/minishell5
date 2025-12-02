@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 23:20:48 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/01 23:22:22 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/02 13:54:01 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,29 +45,19 @@ t_redir_type	get_redir_type(char *op)
 	return (REDIR_OUT);
 }
 
-t_cmd	*parse_cmd_with_redir(char **args)
+int	pars_args_without_redi(char **args, t_cmd *cmd)
 {
-	t_cmd	*cmd;
-	t_redir	*redir;
-	t_redir	*last_redir;
-	int		i;
-	int		j;
-	int		cmd_arg_count;
+	int	i;
+	int	cmd_arg_count;
 
-	cmd = malloc(sizeof(t_cmd));
-	if (!cmd)
-		return (NULL);
-	cmd->redirs = NULL;
-	last_redir = NULL;
 	cmd_arg_count = 0;
 	i = 0;
+	cmd->redirs = NULL;
 	while (args[i])
 	{
 		if (ft_strcmp(args[i], ">") == 0 || ft_strcmp(args[i], ">>") == 0
 			|| ft_strcmp(args[i], "<") == 0 || ft_strcmp(args[i], "<<") == 0)
-		{
 			i += 2;
-		}
 		else
 		{
 			cmd_arg_count++;
@@ -78,37 +68,63 @@ t_cmd	*parse_cmd_with_redir(char **args)
 	if (!cmd->args)
 	{
 		free(cmd);
-		return (NULL);
+		return (-1);
 	}
+	return (0);
+}
+
+int extract_redirection(char **args, int *i, t_cmd *cmd)
+{
+	t_redir	*redir;
+	static t_redir	*last_redir;
+
+	if (ft_strcmp(args[*i], ">") == 0 || ft_strcmp(args[*i], ">>") == 0
+		|| ft_strcmp(args[*i], "<") == 0 || ft_strcmp(args[*i], "<<") == 0)
+	{
+		redir = malloc(sizeof(t_redir));
+		if (!redir)
+		{
+			free_cmd(cmd);
+			return (-1);
+		}
+		redir->type = get_redir_type(args[*i]);
+		redir->file = ft_strdup(args[*i + 1]);
+		redir->next = NULL;
+		if (!cmd->redirs)
+			cmd->redirs = redir;
+		else
+			last_redir->next = redir;
+		last_redir = redir;
+		*i += 2;
+		return (1);
+	}
+	return (0);
+}
+
+t_cmd	*parse_cmd_with_redir(char **args)
+{
+	t_cmd	*cmd;
+	int		i;
+	int		j;
+	int status;
+	
+	cmd = malloc(sizeof(t_cmd));
+	if (!cmd)
+		return (NULL);
+	
+	if (pars_args_without_redi(args, cmd) == -1)
+		return (NULL);	
 	i = 0;
 	j = 0;
 	while (args[i])
 	{
-		if (ft_strcmp(args[i], ">") == 0 || ft_strcmp(args[i], ">>") == 0
-			|| ft_strcmp(args[i], "<") == 0 || ft_strcmp(args[i], "<<") == 0)
-		{
-			redir = malloc(sizeof(t_redir));
-			if (!redir)
-			{
-				free_cmd(cmd);
-				return (NULL);
-			}
-			redir->type = get_redir_type(args[i]);
-			redir->file = ft_strdup(args[i + 1]);
-			redir->next = NULL;
-			if (!cmd->redirs)
-				cmd->redirs = redir;
-			else
-				last_redir->next = redir;
-			last_redir = redir;
-			i += 2;
-		}
+		status = extract_redirection(args, &i, cmd);
+		if (status == -1)
+			return (NULL);
+		else if (status == 1)
+			continue;
 		else
-		{
-			cmd->args[j] = args[i];
-			j++;
-			i++;
-		}
+			cmd->args[j++] = args[i++];
 	}
 	cmd->args[j] = NULL;
 	return (cmd);

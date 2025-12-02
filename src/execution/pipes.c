@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:10 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/01 20:48:55 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/02 13:20:23 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ void	execute_pipeline(char ***cmds, t_env_and_exit *shell)
 	t_cmd	*cmd;
 	int		should_free_args;
 	int		is_builtin_cmd;
-	int		j;
 	int		j;
 	int		exit_code;
 	int		status;
