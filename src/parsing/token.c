@@ -6,29 +6,13 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 20:45:36 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/02 18:29:38 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/03 17:40:38 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-char	*get_operator_token(const char *line, int *i)
-{
-	char	*token;
-
-	if ((line[*i] == '>' && line[*i + 1] == '>') 
-		|| (line[*i] == '<' && line[*i + 1] == '<'))
-	{
-		token = ft_strndup(line + *i, 2);
-		*i += 2;
-		return (token);
-	}
-	token = ft_strndup(line + *i, 1);
-	(*i)++;
-	return (token);
-}
-
-char	*get_quoted_token(const char *line, int *i, int *fla)
+char	*get_quoted_token(const char *line, int *i)
 {
 	char	quote;
 	int		start;
@@ -36,12 +20,6 @@ char	*get_quoted_token(const char *line, int *i, int *fla)
 	char	*token;
 
 	quote = line[*i];
-	if (quote == '"')
-		*fla = 2;
-	else if (quote == '\'')
-		*fla = 1;
-	else
-		return (NULL);
 	(*i)++;
 	start = *i;
 	while (line[*i] && line[*i] != quote)
@@ -96,36 +74,42 @@ void	check_token(t_tokens *tokens)
 	}
 }
 
-t_tokens	*tokenize(const char *line, int *size)
+t_tokens	*parse_tokens(const char *line, int *i, int *size)
 {
-	int			i;
 	t_tokens	*tokens;
-	char		*token;
-	int			fla;
 	t_tokens	*new_tok;
+	char		*tok;
 
-	i = 0;
 	tokens = NULL;
-	token = NULL;
-	while (line[i])
+	while (line[*i])
 	{
-		while (ft_isspace(line[i]))
-			i++;
-		if (!line[i])
+		while (ft_isspace(line[*i]))
+			(*i)++;
+		if (!line[*i])
 			break ;
-		fla = 0;
-		if (is_operator_start(line[i]))
-			token = get_operator_token(line, &i);
+		if (is_operator_start(line[*i]))
+			tok = get_operator_token(line, i);
 		else
-			token = get_word_token(line, &i);
-		if (!token)
+			tok = get_word_token(line, i);
+		if (!tok)
 			break ;
-		new_tok = create_token(token, fla);
+		new_tok = create_token(tok, 0);
 		if (!new_tok)
 			break ;
 		add_token(&tokens, new_tok);
 		(*size)++;
 	}
+	return (tokens);
+}
+
+t_tokens	*tokenize(const char *line, int *size)
+{
+	int			i;
+	t_tokens	*tokens;
+
+	i = 0;
+	*size = 0;
+	tokens = parse_tokens(line, &i, size);
 	if (tokens)
 		check_token(tokens);
 	return (tokens);

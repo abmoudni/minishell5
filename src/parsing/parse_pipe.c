@@ -6,68 +6,50 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/22 03:24:37 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/01 23:20:05 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/03 17:41:24 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-int	count_pipes(char **args)
+char	**alloc_one_command(char **args, int *start)
 {
-	int	i;
-	int	count;
+	int		j;
+	int		k;
+	char	**cmd;
 
-	i = 0;
-	count = 0;
-	while (args[i])
+	j = *start;
+	while (args[j] && ft_strcmp(args[j], "|") != 0)
+		j++;
+	cmd = malloc(sizeof(char *) * (j - *start + 1));
+	if (!cmd)
+		return (NULL);
+	k = 0;
+	while (*start < j)
 	{
-		if (ft_strcmp(args[i], "|") == 0)
-			count++;
-		i++;
+		cmd[k] = args[*start];
+		k++;
+		(*start)++;
 	}
-	return (count);
+	cmd[k] = NULL;
+	if (args[*start])
+		(*start)++;
+	return (cmd);
 }
 
-int	has_pipe(char **args, t_env_and_exit *shell)
+void	free_split_all(char ***result, int count)
 {
-	int		flag;
-	char	***pipe_cmds;
-
-	flag = count_pipes(args);
-	if (flag > 0)
-	{
-		pipe_cmds = split_all_pipes(args);
-		if (pipe_cmds)
-		{
-			execute_pipeline(pipe_cmds, shell);
-			free_all_pipes(pipe_cmds);
-		}
-	}
-	return (flag > 0);
-}
-
-int	find_pipe(char **args)
-{
-	int	i;
-
-	i = 0;
-	while (args[i])
-	{
-		if (ft_strcmp(args[i], "|") == 0)
-			return (i);
-		i++;
-	}
-	return (-1);
+	while (--count >= 0)
+		free(result[count]);
+	free(result);
 }
 
 char	***split_all_pipes(char **args)
 {
 	char	***result;
 	int		num_cmds;
-	int		start;
 	int		i;
-	int		j;
-	int		k;
+	int		start;
 
 	num_cmds = count_pipes(args) + 1;
 	result = malloc(sizeof(char **) * (num_cmds + 1));
@@ -75,30 +57,14 @@ char	***split_all_pipes(char **args)
 		return (NULL);
 	i = 0;
 	start = 0;
-	k = 0;
 	while (i < num_cmds)
 	{
-		j = start;
-		while (args[j] && ft_strcmp(args[j], "|") != 0)
-			j++;
-		result[i] = malloc(sizeof(char *) * (j - start + 1));
+		result[i] = alloc_one_command(args, &start);
 		if (!result[i])
 		{
-			while (--i >= 0)
-				free(result[i]);
-			free(result);
+			free_split_all(result, i);
 			return (NULL);
 		}
-		k = 0;
-		while (start < j)
-		{
-			result[i][k] = args[start];
-			k++;
-			start++;
-		}
-		result[i][k] = NULL;
-		if (args[start])
-			start++;
 		i++;
 	}
 	result[num_cmds] = NULL;

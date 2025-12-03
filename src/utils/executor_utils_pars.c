@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/30 14:18:11 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/01 20:39:40 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/03 17:42:15 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,9 @@ char	**parse_and_validate(char *command, t_env_and_exit *shell, int *size)
 	return (args);
 }
 
-void	print_cmd_error(char *cmd, t_env_and_exit *shell)
+void	print_cmd_error(char *cmd, t_env_and_exit *shell, int code)
 {
+	shell->last_exit = code;
 	ft_perror("minishell: ");
 	if (!get_env_value("PATH", shell))
 	{

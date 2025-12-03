@@ -8,7 +8,8 @@ SRC = ./src/ft_fnc/ft_strcmp.c ./src/ft_fnc/ft_perror.c ./src/signals/signals.c 
 	./src/builtins/unset.c ./src/parsing/parser.c 	./src/parsing/token.c ./src/parsing/syntax.c \
 	./src/utils/executor_utils.c ./src/utils/executor_builtin.c ./src/utils/executor_exit_expand.c \
 	./src/utils/executor_utils_pars.c ./src/utils/export_utils.c ./src/parsing/token_helper.c \
-	./src/utils/free_utils.c
+	./src/utils/free_utils.c ./src/execution/redirections_helper.c ./src/parsing/parse_pipe_helper.c \
+	./src/signals/signals_helper.c
 
 
 OBJ = ${SRC:.c=.o}

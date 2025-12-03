@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/02 18:25:41 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/03 17:45:40 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <ctype.h>
 # include <fcntl.h>
 # include <readline/history.h>
-#include <sys/ioctl.h>
+# include <sys/ioctl.h>
 # include <readline/readline.h>
 # include <signal.h>
 # include <stdio.h>
@@ -100,7 +100,7 @@ void							expand_exit_code(char **args, int exit_code);
 char							**parse_and_validate(char *command,
 									t_env_and_exit *shell, int *size);
 void							print_cmd_error(char *cmd,
-									t_env_and_exit *shell);
+									t_env_and_exit *shell, int code);
 void							free_token_structs(t_tokens *head);
 int								cleanup_on_error(char **args, int i);
 int								handle_heredoc_failure(char **args,
@@ -126,6 +126,7 @@ t_tokens						*create_token(char *str, int fla);
 void							add_token(t_tokens **head, t_tokens *new_token);
 void							print_tokens(t_tokens *head);
 int								is_operator_start(char c);
+char							*get_operator_token(const char *line, int *i);
 // ============= Pipe functions =============
 char							***split_all_pipes(char **args);
 void							free_all_pipes(char ***cmds);

@@ -6,131 +6,87 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:14 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/03 00:04:58 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/03 17:44:04 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-int	*save_std_fds(void)
+static int	handledupclose(int fd, char *filename, int unlink_flag, int is_temp)
 {
-	int	*saved;
-
-	saved = malloc(sizeof(int) * 2);
-	if (!saved)
-		return (NULL);
-	saved[0] = dup(STDIN_FILENO);
-	saved[1] = dup(STDOUT_FILENO);
-	return (saved);
-}
-
-void	restore_std_fds(int *saved)
-{
-	if (!saved)
-		return ;
-	dup2(saved[0], STDIN_FILENO);
-	dup2(saved[1], STDOUT_FILENO);
-	close(saved[0]);
-	close(saved[1]);
-	free(saved);
-}
-
-int	execute_output_redir(t_redir *redir)
-{
-	int	fd;
-	int	flags;
-
-	if (redir->type == REDIR_OUT)
-		flags = O_WRONLY | O_CREAT | O_TRUNC;
-	else
-		flags = O_WRONLY | O_CREAT | O_APPEND;
-	fd = open(redir->file, flags, 0644);
-	if (fd == -1)
-	{
-		perror(redir->file);
-		return (-1);
-	}
-	if (dup2(fd, STDOUT_FILENO) == -1)
+	if (dup2(fd, STDIN_FILENO) == -1)
 	{
 		perror("dup2");
 		close(fd);
+		if (unlink_flag && is_temp)
+		{
+			unlink(filename);
+			free(filename);
+		}
 		return (-1);
 	}
 	close(fd);
+	if (unlink_flag)
+	{
+		unlink(filename);
+		if (is_temp)
+			free(filename);
+	}
 	return (0);
 }
 
-int	execute_input_redir(t_redir *redir)
+static int	open_and_redirect(char *filename, int unlink_flag, int is_temp)
 {
-	int		fd;
-	char	*filename;
-	int		should_unlink;
+	int	fd;
 
-	should_unlink = 0;
-	if (redir->type == REDIR_HEREDOC)
+	fd = open(filename, O_RDONLY);
+	if (fd == -1)
 	{
-		if (ft_strncmp(redir->file, "/tmp/.heredoc_temp_", 19) == 0)
-		{
-			filename = redir->file;
-			should_unlink = 1;
-		}
-		else
-		{
-			filename = read_heredoc(redir->file);
-			reset_signals();
-			if (!filename)
-			{
-				ft_perror("minishell: heredoc: interrupted\n");
-				return (-1);
-			}
-			should_unlink = 1;
-		}
-		fd = open(filename, O_RDONLY);
-		if (fd == -1)
-		{
-			perror(filename);
-			if (should_unlink && filename != redir->file)
-			{
-				unlink(filename);
-				free(filename);
-			}
-			return (-1);
-		}
-		if (dup2(fd, STDIN_FILENO) == -1)
-		{
-			perror("dup2");
-			close(fd);
-			if (should_unlink && filename != redir->file)
-			{
-				unlink(filename);
-				free(filename);
-			}
-			return (-1);
-		}
-		close(fd);
-		if (should_unlink)
+		perror(filename);
+		if (unlink_flag && is_temp)
 		{
 			unlink(filename);
-			if (filename != redir->file)
-				free(filename);
+			free(filename);
 		}
+		return (-1);
+	}
+	return (handledupclose(fd, filename, unlink_flag, is_temp));
+}
+
+static int	handle_heredoc(t_redir *r)
+{
+	char	*filename;
+	int		unlink_flag;
+	int		is_temp;
+
+	unlink_flag = 1;
+	if (ft_strncmp(r->file, "/tmp/.heredoc_temp_", 19) == 0)
+	{
+		filename = r->file;
+		is_temp = 0;
 	}
 	else
 	{
-		fd = open(redir->file, O_RDONLY);
-		if (fd == -1)
-		{
-			perror(redir->file);
-			return (-1);
-		}
-		if (dup2(fd, STDIN_FILENO) == -1)
-		{
-			perror("dup2");
-			close(fd);
-			return (-1);
-		}
-		close(fd);
+		filename = read_heredoc(r->file);
+		if (!filename)
+			return (ft_perror("minishell: heredoc: interrupted\n"), -1);
+		is_temp = 1;
 	}
+	return (open_and_redirect(filename, unlink_flag, is_temp));
+}
+
+int	execute_input_redir(t_redir *r)
+{
+	int	fd;
+
+	if (r->type == REDIR_HEREDOC)
+		return (handle_heredoc(r));
+	fd = open(r->file, O_RDONLY);
+	if (fd == -1)
+		return (perror(r->file), -1);
+	if (dup2(fd, STDIN_FILENO) == -1)
+		return (perror("dup2"), close(fd), -1);
+	close(fd);
 	return (0);
 }
 

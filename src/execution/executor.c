@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:07 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/02 14:38:14 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/03 17:42:22 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,9 +94,8 @@ void	execute_command(char *command, t_env_and_exit *shell)
 	cmd_path = find_command_path(cmd->args[0], shell);
 	if (!cmd_path)
 	{
-		print_cmd_error(cmd->args[0], shell);
-		return (free_cmd(cmd), free_array(args),
-			(void)(shell->last_exit = 127));
+		print_cmd_error(cmd->args[0], shell, 127);
+		return (free_cmd(cmd), free_array(args));
 	}
 	execute_external_cmd(cmd, args, cmd_path, shell);
 }
