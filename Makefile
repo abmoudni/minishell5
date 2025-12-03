@@ -9,8 +9,8 @@ SRC = ./src/ft_fnc/ft_strcmp.c ./src/ft_fnc/ft_perror.c ./src/signals/signals.c 
 	./src/utils/executor_utils.c ./src/utils/executor_builtin.c ./src/utils/executor_exit_expand.c \
 	./src/utils/executor_utils_pars.c ./src/utils/export_utils.c ./src/parsing/token_helper.c \
 	./src/utils/free_utils.c ./src/execution/redirections_helper.c ./src/parsing/parse_pipe_helper.c \
-	./src/signals/signals_helper.c
-
+	./src/signals/signals_helper.c ./src/execution/pipes_init.c ./src/execution/pipes_create.c \
+	./src/execution/pipes_free_and_errs.c ./src/execution/pipes_child.c
 
 OBJ = ${SRC:.c=.o}
 

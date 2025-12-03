@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/03 17:45:40 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/03 18:24:42 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@
 # include <ctype.h>
 # include <fcntl.h>
 # include <readline/history.h>
-# include <sys/ioctl.h>
 # include <readline/readline.h>
 # include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <sys/ioctl.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <unistd.h>
@@ -89,6 +89,16 @@ typedef struct s_tokens
 	struct s_tokens				*next;
 }								t_tokens;
 
+typedef struct s_pipeline_data
+{
+	int							num_cmds;
+	int							i;
+	int							is_builtin;
+	int							**pipes;
+	pid_t						*pids;
+	t_env_and_exit				*shell;
+}								t_pipeline_data;
+
 extern volatile sig_atomic_t	g_signal;
 
 void							init_herdoc_signals(void);
@@ -137,6 +147,21 @@ int								has_pipe(char **args, t_env_and_exit *shell);
 int								find_pipe(char **args);
 void							execute_pipe(char **cmd1, char **cmd2,
 									t_env_and_exit *shell);
+int								init_pipeline(t_pipeline_data *data,
+									char ***cmds, t_env_and_exit *shell);
+pid_t							*alloc_pids(int num_cmds, int **pipes);
+int								process_single_command(t_pipeline_data *data,
+									char ***cmds);
+int								handle_cmd_not_found(t_cmd *cmd, int i,
+									pid_t *pids);
+void							handle_fork_error(t_cmd *cmd, char *path,
+									t_pipeline_data *data);
+void							close_all_pipes(int **pipes, int num_cmds);
+int								**create_pipes(int num_cmds);
+void							free_pipes_array(int **pipes, int num_cmds);
+int								prepare_command(char **cmd_args,
+									t_env_and_exit *shell, t_cmd **cmd,
+									char **path);
 
 // ============= Quote handling =============
 char							*remove_quotes(char *str);
