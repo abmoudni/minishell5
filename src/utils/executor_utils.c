@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/30 14:15:00 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/02 18:11:15 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/04 18:35:13 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,7 @@
 int	handle_heredoc_failure(char **args, t_env_and_exit *shell)
 {
 	free_array(args);
-	if (g_signal == SIGINT)
-	{
-		shell->last_exit = 130;
-		g_signal = 0;
-	}
-	else
-		shell->last_exit = 1;
+	(void)shell;
 	return (-1);
 }
 
@@ -59,7 +53,7 @@ int	look_for_directories(char *args)
 	return (0);
 }
 
-int	preprocess_heredocs(char **args)
+int	preprocess_heredocs(char **args, t_env_and_exit *shell)
 {
 	int		i;
 	char	*temp_file;
@@ -69,7 +63,7 @@ int	preprocess_heredocs(char **args)
 	{
 		if (ft_strcmp(args[i], "<<") == 0 && args[i + 1])
 		{
-			temp_file = read_heredoc(args[i + 1]);
+			temp_file = read_heredoc(args[i + 1], shell);
 			init_signals();
 			if (!temp_file)
 				return (-1);
@@ -81,13 +75,13 @@ int	preprocess_heredocs(char **args)
 	return (0);
 }
 
-void	handle_redir_only(t_cmd *cmd, char **args)
+void	handle_redir_only(t_cmd *cmd, char **args, t_env_and_exit *shell)
 {
 	int	*saved_fds;
 
 	saved_fds = save_std_fds();
 	if (cmd->redirs)
-		execute_redirections(cmd->redirs);
+		execute_redirections(cmd->redirs, shell);
 	restore_std_fds(saved_fds);
 	free_cmd(cmd);
 	free_array(args);

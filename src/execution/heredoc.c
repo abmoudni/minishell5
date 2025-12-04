@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 15:34:17 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/02 18:31:21 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/04 18:41:54 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,27 @@ static int	prepare_file(char **filename, int *fd)
 	return (0);
 }
 
-char	*read_heredoc(char *delimiter)
-{
-	char	*input;
-	char	*filename;
-	int		fd;
 
-	if (prepare_file(&filename, &fd))
-		return (NULL);
-	init_herdoc_signals();
+void	handle_sigint_heredoc(int sig)
+{
+	(void)sig;
+	write(1, "\n", 1);
+	exit(130);
+}
+void herdoc_child(char *fn, char *del)
+{
+	int	fd;
+	char *input;
+
+	signal(SIGINT, handle_sigint_heredoc);
+	signal(SIGQUIT, SIG_IGN);
+	fd = open(fn, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd == -1)
+	{
+		perror("open");
+		//free data
+		exit(1);
+	}
 	while (1)
 	{
 		input = readline("> ");
@@ -80,15 +92,58 @@ char	*read_heredoc(char *delimiter)
 		{
 			if (input)
 				free(input);
-			close(fd);
-			unlink(filename);
-			free(filename);
 			g_signal = 0;
-			return (NULL);
+			return (close(fd), unlink(fn), free(fn), NULL);
 		}
-		if (write_to_file(input, delimiter, fd))
+		if (write_to_file(input, del, fd))
 			break ;
 	}
+	close(fd);
+	exit(0);
+}
+
+void herdoc_parent(pid_t pid, char *fn)
+{
+	int	wstatus;
+	int	status;
+
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+	waitpid(pid, &wstatus, 0);
+	status = WEXITSTATUS(wstatus);
+	if (status == 130 || status == 1)
+	{
+		if (status == 130)
+			shell->last_exit = 130;
+		else
+			shell->last_exit = 30;
+		unlink(fn);
+		return (NULL);
+	}
+	shell->last_exit = 0;
+	return (fn);
+}
+
+char	*read_heredoc(char *delimiter, t_env_and_exit *shell)
+{
+	char	*input;
+	char	*filename;
+	pid_t	pid;
+	int		fd;
+
+	if (prepare_file(&filename, &fd))
+		return (NULL);
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork");
+		return (NULL);
+	}
+	if (pid == 0)
+		herdoc_child(filename, delimiter);
+	else
+		herdoc_parent(pid, filename);
+
 	close(fd);
 	return (filename);
 }

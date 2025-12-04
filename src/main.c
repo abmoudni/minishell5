@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 02:45:27 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/02 18:28:58 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/04 18:18:58 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,13 @@
 
 void		rl_clear_history(void);
 
+void get_and_set_value(t_env_and_exit *original, int code)
+{
+	static t_env_and_exit *current;
+	if (original)
+		current = original;
+	current->last_exit = code;
+}
 static void	init_env_and_signals(t_env_and_exit *shell, char **env)
 {
 	shell->env = copy_env(env);
@@ -22,8 +29,7 @@ static void	init_env_and_signals(t_env_and_exit *shell, char **env)
 		printf("Error: Failed to copy environment\n");
 		exit(1);
 	}
-	init_signals();
-	shell->last_exit = 0;
+	get_and_set_value(shell, 0);
 }
 
 static int	read_input(char **input, t_env_and_exit *shell)
@@ -63,6 +69,7 @@ int	main(int ac, char **av, char **env)
 	init_env_and_signals(&shell, env);
 	while (1)
 	{
+		init_signals();
 		status = read_input(&input, &shell);
 		if (status == -1)
 			break ;

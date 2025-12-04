@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/03 18:24:42 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/04 18:18:39 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,13 +118,14 @@ int								handle_heredoc_failure(char **args,
 int								handle_dir_error(int stat, char **args,
 									t_env_and_exit *shell);
 int								look_for_directories(char *args);
-int								preprocess_heredocs(char **args);
-void							handle_redir_only(t_cmd *cmd, char **args);
+int								preprocess_heredocs(char **args,  t_env_and_exit *shell);
+void							handle_redir_only(t_cmd *cmd, char **args, t_env_and_exit *shell);
 
 // ============ Signal handlers  =============
 void							init_signals(void);
 void							reset_signals(void);
 void							init_signals_child_exec(void);
+void get_and_set_value(t_env_and_exit *original, int code);
 // ============ TOKENIZER Moudnib =============
 t_tokens						*tokenize(const char *line, int *size);
 int								check_unclosed_quotes(char *line);
@@ -216,12 +217,12 @@ void							free_cmd(t_cmd *cmd);
 int								*save_std_fds(void);
 void							restore_std_fds(int *saved);
 int								execute_output_redir(t_redir *redir);
-int								execute_input_redir(t_redir *redir);
-int								execute_redirections(t_redir *redirs);
+int								execute_input_redir(t_redir *redir, t_env_and_exit *shell);
+int								execute_redirections(t_redir *redirs, t_env_and_exit *shell);
 
 // ============= HEREDOC =============
 
-char							*read_heredoc(char *delimiter);
+char							*read_heredoc(char *delimiter, t_env_and_exit *shell);
 int								ft_strcmp(char *s1, char *s2);
 void							ft_perror(char *str);
 #endif

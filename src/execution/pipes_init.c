@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 17:59:24 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/03 18:30:28 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/04 18:36:47 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,14 @@ static int	count_cmds(char ****cmds)
 	return (num_cmds);
 }
 
-static int	process_single_heredoc(char ***cmds, int i, int j)
+static int	process_single_heredoc(char ***cmds, int i, int j,
+									t_env_and_exit *shell)
 {
 	char	*temp_file;
 
 	if (ft_strcmp(cmds[i][j], "<<") == 0 && cmds[i][j + 1])
 	{
-		temp_file = read_heredoc(cmds[i][j + 1]);
+		temp_file = read_heredoc(cmds[i][j + 1], shell);
 		reset_signals();
 		if (!temp_file)
 			return (-1);
@@ -37,7 +38,7 @@ static int	process_single_heredoc(char ***cmds, int i, int j)
 	return (0);
 }
 
-static int	process_all_heredocs(char ***cmds, int num_cmds)
+static int	process_all_heredocs(char ***cmds, int num_cmds, t_env_and_exit *shell)
 {
 	int		i;
 	int		j;
@@ -48,7 +49,7 @@ static int	process_all_heredocs(char ***cmds, int num_cmds)
 		j = 0;
 		while (cmds[i][j])
 		{
-			if (process_single_heredoc(cmds, i, j) == -1)
+			if (process_single_heredoc(cmds, i, j, shell) == -1)
 				return (-1);
 			j++;
 		}
@@ -64,7 +65,7 @@ int	init_pipeline(t_pipeline_data *data, char ***cmds,
 	data->shell = shell;
 	if (data->num_cmds == 0)
 		return (-1);
-	if (process_all_heredocs(cmds, data->num_cmds) == -1)
+	if (process_all_heredocs(cmds, data->num_cmds, shell) == -1)
 	{
 		if (g_signal == SIGINT)
 		{
