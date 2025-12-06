@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:25 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/04 18:36:23 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 15:54:17 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,14 +30,22 @@ static int	check_first_token(t_tokens *tokens)
 	return (1);
 }
 
+void	p_err_spl(char *token)
+{
+	ft_perror("minishell: syntax error near unexpected token `");
+	if (token)
+		ft_perror(token);
+	ft_perror("'\n");
+}
+
 static int	check_pipe_or_redir(t_tokens *current)
 {
 	if (current->type == TOKEN_PIPE)
 		if (!current->next)
-			return (ft_perror("minishell: syntax error near unexpected token `|'\n"), 0);
+			return (p_err_spl("|"), 0);
 	if (current->type == REDIR_HEREDOC && current->next
 		&& current->next->type == TOKEN_PIPE)
-		return (ft_perror("minishell: syntax error near unexpected token `|'\n"), 0);
+		return (p_err_spl("|"), 0);
 	if (current->type >= REDIR_IN && current->type <= REDIR_HEREDOC)
 	{
 		if (!current->next || current->next->type != TOKEN_WORD)
@@ -45,12 +53,10 @@ static int	check_pipe_or_redir(t_tokens *current)
 			if (current->type != REDIR_HEREDOC && current->next
 				&& current->next->type != TOKEN_WORD)
 			{
-				ft_perror("minishell: syntax error near unexpected token `");
-				ft_perror(current->next->value);
-				ft_perror("'\n");
+				p_err_spl(current->next->value);
 			}
 			else if (!current->next)
-				ft_perror("minishell: syntax error near unexpected token `newline'\n");
+				p_err_spl(NULL);
 			return (0);
 		}
 	}

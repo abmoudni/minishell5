@@ -55,11 +55,11 @@ static int	open_and_redirect(char *filename, int unlink_flag, int is_temp)
 
 static int	handle_heredoc(t_redir *r)
 {
-	char	*filename;
-	int		unlink_flag;
-	int		is_temp;
-	t_env_and_exit *shell;
-	
+	char			*filename;
+	int				unlink_flag;
+	int				is_temp;
+	t_env_and_exit	*shell;
+
 	shell = NULL;
 	unlink_flag = 1;
 	if (ft_strncmp(r->file, "/tmp/.heredoc_temp_", 19) == 0)
@@ -98,20 +98,16 @@ int	execute_input_redir(t_redir *r)
 int	execute_redirections(t_redir *redirs)
 {
 	t_redir	*current;
-	// t_env_and_exit *shell;
+
 	current = redirs;
 	while (current)
 	{
-
-		// shell = get_and_set_value(NULL, -1);
-		// if (shell->last_exit == 130)
-		// 	break;
-		
 		if (current->type == REDIR_OUT || current->type == REDIR_APPEND)
 		{
 			if (execute_output_redir(current) == -1)
 				return (-1);
-		}else if (current->type == REDIR_IN || current->type == REDIR_HEREDOC)
+		}
+		else if (current->type == REDIR_IN || current->type == REDIR_HEREDOC)
 		{
 			if (execute_input_redir(current) == -1)
 				return (-1);

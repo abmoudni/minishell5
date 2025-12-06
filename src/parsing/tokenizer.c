@@ -1,35 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   token.c                                            :+:      :+:    :+:   */
+/*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 20:45:36 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/03 17:40:38 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 17:29:37 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-char	*get_quoted_token(const char *line, int *i)
-{
-	char	quote;
-	int		start;
-	int		len;
-	char	*token;
-
-	quote = line[*i];
-	(*i)++;
-	start = *i;
-	while (line[*i] && line[*i] != quote)
-		(*i)++;
-	len = *i - start;
-	token = ft_substr(line, start, len);
-	if (line[*i] == quote)
-		(*i)++;
-	return (token);
-}
 
 char	*get_word_token(const char *line, int *i)
 {

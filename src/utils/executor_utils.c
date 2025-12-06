@@ -6,16 +6,31 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/30 14:15:00 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/05 17:43:14 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 17:29:47 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-int	handle_heredoc_failure(char **args)
+void	expand_exit_code(char **args, int exit_code)
 {
-	free_array(args);
-	return (-1);
+	int		i;
+	char	*tmp;
+	char	*res;
+
+	i = 0;
+	while (args[i])
+	{
+		if (ft_strncmp(args[i], "$?", 2) == 0)
+		{
+			tmp = ft_itoa(exit_code);
+			res = ft_strjoin(tmp, args[i] + 2);
+			free(args[i]);
+			args[i] = res;
+			free(tmp);
+		}
+		i++;
+	}
 }
 
 int	handle_dir_error(int stat, char **args, t_env_and_exit *shell)
@@ -52,12 +67,18 @@ int	look_for_directories(char *args)
 	return (0);
 }
 
+int	handle_heredoc_failure(char **args)
+{
+	free_array(args);
+	return (-1);
+}
+
 int	preprocess_heredocs(char **args)
 {
-	int		i;
-	char	*temp_file;
-	t_env_and_exit *shell;
-	
+	int				i;
+	char			*temp_file;
+	t_env_and_exit	*shell;
+
 	shell = NULL;
 	i = 0;
 	shell = get_and_set_value(NULL, -1);
@@ -77,16 +98,4 @@ int	preprocess_heredocs(char **args)
 		i++;
 	}
 	return (0);
-}
-
-void	handle_redir_only(t_cmd *cmd, char **args)
-{
-	int	*saved_fds;
-
-	saved_fds = save_std_fds();
-	if (cmd->redirs)
-		execute_redirections(cmd->redirs);
-	restore_std_fds(saved_fds);
-	free_cmd(cmd);
-	free_array(args);
 }

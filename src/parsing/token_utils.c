@@ -1,16 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   token_helper.c                                     :+:      :+:    :+:   */
+/*   token_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/01 22:10:13 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/03 17:40:44 by mtawil           ###   ########.fr       */
+/*   Created: 2025/12/05 18:42:12 by mtawil            #+#    #+#             */
+/*   Updated: 2025/12/06 17:29:32 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
+
+int	is_operator_start(char c)
+{
+	return (c == '>' || c == '<' || c == '|');
+}
+
+char	*get_operator_token(const char *line, int *i)
+{
+	char	*token;
+
+	if ((line[*i] == '>' && line[*i + 1] == '>') || (line[*i] == '<'
+			&& line[*i + 1] == '<'))
+	{
+		token = ft_strndup(line + *i, 2);
+		*i += 2;
+		return (token);
+	}
+	token = ft_strndup(line + *i, 1);
+	(*i)++;
+	return (token);
+}
 
 t_tokens	*create_token(char *str, int fla)
 {
@@ -67,25 +88,4 @@ void	print_tokens(t_tokens *head)
 		printf("(type=%d)\n", current->flag);
 		current = current->next;
 	}
-}
-
-int	is_operator_start(char c)
-{
-	return (c == '>' || c == '<' || c == '|');
-}
-
-char	*get_operator_token(const char *line, int *i)
-{
-	char	*token;
-
-	if ((line[*i] == '>' && line[*i + 1] == '>')
-		|| (line[*i] == '<' && line[*i + 1] == '<'))
-	{
-		token = ft_strndup(line + *i, 2);
-		*i += 2;
-		return (token);
-	}
-	token = ft_strndup(line + *i, 1);
-	(*i)++;
-	return (token);
 }

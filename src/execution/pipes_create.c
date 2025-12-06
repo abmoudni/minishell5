@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 18:01:09 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/05 12:31:09 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 17:28:31 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	**create_pipes(int num_cmds)
 	int	**pipes;
 	int	i;
 
-	pipes = malloc(sizeof(int *) *120000);
+	pipes = malloc(sizeof(int *) * (num_cmds - 1));
 	if (!pipes)
 		return (NULL);
 	i = 0;
@@ -55,6 +55,19 @@ void	free_pipes_array(int **pipes, int num_cmds)
 		i++;
 	}
 	free(pipes);
+}
+
+void	close_all_pipes(int **pipes, int num_cmds)
+{
+	int	j;
+
+	j = 0;
+	while (j < num_cmds - 1)
+	{
+		close(pipes[j][0]);
+		close(pipes[j][1]);
+		j++;
+	}
 }
 
 pid_t	*alloc_pids(int num_cmds, int **pipes)

@@ -6,23 +6,25 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/14 02:45:27 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/05 14:36:58 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 16:09:42 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void		rl_clear_history(void);
+void			rl_clear_history(void);
 
-t_env_and_exit *get_and_set_value(t_env_and_exit *original, int code)
+t_env_and_exit	*get_and_set_value(t_env_and_exit *original, int code)
 {
-	static t_env_and_exit *current;
+	static t_env_and_exit	*current;
+
 	if (original)
 		current = original;
 	if (code != -1)
 		current->last_exit = code;
 	return (current);
 }
+
 static void	init_env_and_signals(t_env_and_exit *shell, char **env)
 {
 	shell->env = copy_env(env);

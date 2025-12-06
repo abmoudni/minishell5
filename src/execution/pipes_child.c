@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 18:08:39 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/05 12:07:31 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 17:28:21 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,14 @@ static void	child_execute_builtin(t_cmd *cmd, t_env_and_exit *shell)
 	exit(exit_code);
 }
 
-static void	child_execute_command(t_cmd *cmd, char *path,
-		t_env_and_exit *shell)
+static void	child_execute_command(t_cmd *cmd, char *path, t_env_and_exit *shell)
 {
 	execve(path, cmd->args, shell->env);
 	perror("minishell");
 	exit(1);
 }
 
-static void	child_process(t_cmd *cmd, char *path, t_pipeline_data *data)
+void	child_process(t_cmd *cmd, char *path, t_pipeline_data *data)
 {
 	reset_signals();
 	setup_pipe_redirection(data->i, data->num_cmds, data->pipes);
@@ -51,25 +50,12 @@ static void	child_process(t_cmd *cmd, char *path, t_pipeline_data *data)
 	child_execute_command(cmd, path, data->shell);
 }
 
-int	process_single_command(t_pipeline_data *data, char ***cmds)
+void	handle_fork_error(t_cmd *cmd, char *path, t_pipeline_data *data)
 {
-	t_cmd	*cmd;
-	char	*path;
-	int		builtin_flag;
-
-	builtin_flag = prepare_command(cmds[data->i], data->shell, &cmd, &path);
-	if (builtin_flag == -1)
-		return (0);
-	if (builtin_flag == 0 && !path)
-		return (handle_cmd_not_found(cmd, data->i, data->pids));
-	data->is_builtin = builtin_flag;
-	data->pids[data->i] = fork();
-	if (data->pids[data->i] == -1)
-		return (handle_fork_error(cmd, path, data), -1);
-	if (data->pids[data->i] == 0)
-		child_process(cmd, path, data);
+	perror("fork");
 	if (path)
 		free(path);
 	free_cmd(cmd);
-	return (0);
+	free_pipes_array(data->pipes, data->num_cmds);
+	free(data->pids);
 }

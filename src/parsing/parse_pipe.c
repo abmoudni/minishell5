@@ -12,6 +12,54 @@
 
 #include "../../include/minishell.h"
 
+int	count_pipes(char **args)
+{
+	int	i;
+	int	count;
+
+	i = 0;
+	count = 0;
+	while (args[i])
+	{
+		if (ft_strcmp(args[i], "|") == 0)
+			count++;
+		i++;
+	}
+	return (count);
+}
+
+int	find_pipe(char **args)
+{
+	int	i;
+
+	i = 0;
+	while (args[i])
+	{
+		if (ft_strcmp(args[i], "|") == 0)
+			return (i);
+		i++;
+	}
+	return (-1);
+}
+
+int	has_pipe(char **args, t_env_and_exit *shell)
+{
+	int		flag;
+	char	***pipe_cmds;
+
+	flag = count_pipes(args);
+	if (flag > 0)
+	{
+		pipe_cmds = split_all_pipes(args);
+		if (pipe_cmds)
+		{
+			execute_pipeline(pipe_cmds, shell);
+			free_all_pipes(pipe_cmds);
+		}
+	}
+	return (flag > 0);
+}
+
 char	**alloc_one_command(char **args, int *start)
 {
 	int		j;
@@ -35,13 +83,6 @@ char	**alloc_one_command(char **args, int *start)
 	if (args[*start])
 		(*start)++;
 	return (cmd);
-}
-
-void	free_split_all(char ***result, int count)
-{
-	while (--count >= 0)
-		free(result[count]);
-	free(result);
 }
 
 char	***split_all_pipes(char **args)
@@ -69,29 +110,4 @@ char	***split_all_pipes(char **args)
 	}
 	result[num_cmds] = NULL;
 	return (result);
-}
-
-void	free_all_pipes(char ***cmds)
-{
-	int	i;
-	int	j;
-
-	if (!cmds)
-		return ;
-	i = 0;
-	while (cmds[i])
-	{
-		j = 0;
-		while (cmds[i][j])
-		{
-			if (ft_strncmp(cmds[i][j], "/tmp/.heredoc_temp_", 19) == 0)
-			{
-				free(cmds[i][j]);
-			}
-			j++;
-		}
-		free(cmds[i]);
-		i++;
-	}
-	free(cmds);
 }

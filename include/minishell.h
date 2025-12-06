@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/05 12:17:18 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 17:18:14 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,12 @@
 # define MINISHELL_H
 
 # include "../libft/libft.h"
+# include <stdio.h>
 # include <ctype.h>
 # include <fcntl.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
-# include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <sys/ioctl.h>
@@ -27,7 +27,6 @@
 # include <sys/wait.h>
 # include <unistd.h>
 
-// ============= DATA STRUCTURES =============
 # define MAX_EXIT "255"
 # define NAR_ERROR "1"
 # define MIN_EXIT "0"
@@ -36,6 +35,7 @@
 #  define TMA_ERROR "1"
 # endif
 
+// ============= data structures ============
 typedef struct s_quotes
 {
 	char						*result;
@@ -124,7 +124,8 @@ void							handle_redir_only(t_cmd *cmd, char **args);
 void							init_signals(void);
 void							reset_signals(void);
 void							init_signals_child_exec(void);
-t_env_and_exit *get_and_set_value(t_env_and_exit *original, int code);
+t_env_and_exit					*get_and_set_value(t_env_and_exit *original,
+									int code);
 // ============ TOKENIZER Moudnib =============
 t_tokens						*tokenize(const char *line, int *size);
 int								check_unclosed_quotes(char *line);
@@ -156,6 +157,9 @@ int								handle_cmd_not_found(t_cmd *cmd, int i,
 									pid_t *pids);
 void							handle_fork_error(t_cmd *cmd, char *path,
 									t_pipeline_data *data);
+void							child_process(t_cmd *cmd, char *path,
+									t_pipeline_data *data);
+void							free_split_all(char ***result, int count);
 void							close_all_pipes(int **pipes, int num_cmds);
 int								**create_pipes(int num_cmds);
 void							free_pipes_array(int **pipes, int num_cmds);

@@ -3,19 +3,19 @@ NAME = minishell
 SRC = ./src/ft_fnc/ft_strcmp.c ./src/ft_fnc/ft_perror.c ./src/signals/signals.c \
 	 ./src/utils/env_utils.c  ./src/builtins/builtins.c ./src/builtins/exit.c \
 	./src/builtins/env.c ./src/builtins/pwd.c ./src/builtins/export.c ./src/builtins/cd.c ./src/builtins/echo.c \
-	./src/main.c ./src/execution/executor.c ./src/execution/pipes.c ./src/execution/redirections.c ./src/execution/heredoc.c \
-	./src/parsing/parse_redirections.c ./src/parsing/parse_pipe.c ./src/parsing/quotes.c ./src/parsing/path.c \
-	./src/builtins/unset.c ./src/parsing/parser.c 	./src/parsing/token.c ./src/parsing/syntax.c \
-	./src/utils/executor_utils.c ./src/utils/executor_builtin.c ./src/utils/executor_exit_expand.c \
-	./src/utils/executor_utils_pars.c ./src/utils/export_utils.c ./src/parsing/token_helper.c \
-	./src/utils/free_utils.c ./src/execution/redirections_helper.c ./src/parsing/parse_pipe_helper.c \
-	./src/signals/signals_helper.c ./src/execution/pipes_init.c ./src/execution/pipes_create.c \
-	./src/execution/pipes_free_and_errs.c ./src/execution/pipes_child.c
+	./src/main.c ./src/execution/executor.c ./src/execution/pipes.c ./src/execution/pipes_create.c \
+	./src/execution/pipes_init.c ./src/execution/pipes_child.c ./src/execution/redirections.c ./src/execution/heredoc.c \
+	./src/parsing/parse_redirections.c ./src/parsing/parse_pipe.c ./src/parsing/parse_pipe_utils.c \
+	./src/parsing/quotes.c ./src/parsing/path.c \
+	./src/builtins/unset.c ./src/parsing/parser.c ./src/parsing/tokenizer.c ./src/parsing/token_utils.c ./src/parsing/syntax.c \
+	./src/utils/executor_utils.c ./src/utils/executor_builtin.c ./src/utils/executor_parsing.c ./src/utils/export_utils.c \
+	./src/utils/free_utils.c ./src/execution/redirections_helper.c \
+	./src/signals/signals_helper.c
 
 OBJ = ${SRC:.c=.o}
 
 CC = cc
-CFLAGS = -Wall -Wextra  -Werror
+CFLAGS = -Wall -Wextra  -Werror 
 
 LIBFT_DIR = ./libft
 LIBFT = ${LIBFT_DIR}/libft.a

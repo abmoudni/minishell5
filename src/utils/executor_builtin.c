@@ -12,6 +12,18 @@
 
 #include "../../include/minishell.h"
 
+void	handle_redir_only(t_cmd *cmd, char **args)
+{
+	int	*saved_fds;
+
+	saved_fds = save_std_fds();
+	if (cmd->redirs)
+		execute_redirections(cmd->redirs);
+	restore_std_fds(saved_fds);
+	free_cmd(cmd);
+	free_array(args);
+}
+
 int	execute_builtin_cmd(t_cmd *cmd, char **args, t_env_and_exit *shell)
 {
 	int	*saved_fds;

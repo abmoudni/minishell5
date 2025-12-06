@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 17:59:24 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/05 14:56:28 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 17:28:41 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,8 @@ static int	process_single_heredoc(char ***cmds, int i, int j)
 
 static int	process_all_heredocs(char ***cmds, int num_cmds)
 {
-	int		i;
-	int		j;
+	int	i;
+	int	j;
 
 	i = 0;
 	while (i < num_cmds)
@@ -57,8 +57,7 @@ static int	process_all_heredocs(char ***cmds, int num_cmds)
 	return (0);
 }
 
-int	init_pipeline(t_pipeline_data *data, char ***cmds,
-		t_env_and_exit *shell)
+int	init_pipeline(t_pipeline_data *data, char ***cmds, t_env_and_exit *shell)
 {
 	data->num_cmds = count_cmds(&cmds);
 	data->shell = shell;
@@ -82,4 +81,16 @@ int	init_pipeline(t_pipeline_data *data, char ***cmds,
 	if (!data->pids)
 		return (-1);
 	return (0);
+}
+
+int	handle_cmd_not_found(t_cmd *cmd, int i, pid_t *pids)
+{
+	ft_perror("minishell: ");
+	ft_perror(cmd->args[0]);
+	ft_perror(": command not found\n");
+	free_cmd(cmd);
+	pids[i] = fork();
+	if (pids[i] == 0)
+		exit(127);
+	return (1);
 }

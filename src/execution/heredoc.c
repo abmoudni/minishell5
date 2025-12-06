@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 15:34:17 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/05 17:38:07 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/06 17:22:20 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,28 +64,18 @@ static int	prepare_file(char **filename, int *fd)
 	return (0);
 }
 
-
 void	handle_sigint_heredoc(int sig)
 {
 	(void)sig;
 	write(1, "\n", 1);
 	exit(130);
 }
-void herdoc_child(char *fn, char *del)
+void	herdoc_child(int fd, char *del)
 {
-	int	fd;
-	char *input;
+	char	*input;
 
 	signal(SIGINT, handle_sigint_heredoc);
 	signal(SIGQUIT, SIG_IGN);
-	fd = open(fn, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
-	{
-		perror("open");
-		close(fd);
-		unlink(fn);
-		exit(1);
-	}
 	while (1)
 	{
 		input = readline("> ");
@@ -94,18 +84,16 @@ void herdoc_child(char *fn, char *del)
 			if (input)
 				free(input);
 			g_signal = 0;
-			unlink(fn);
-			break;
+			break ;
 		}
 		if (write_to_file(input, del, fd))
 			break ;
 	}
-
 	close(fd);
 	exit(0);
 }
 
-void herdoc_parent(pid_t pid, char *fn)
+void	herdoc_parent(pid_t pid, char *fn)
 {
 	int	wstatus;
 	int	status;
@@ -122,7 +110,7 @@ void herdoc_parent(pid_t pid, char *fn)
 			get_and_set_value(NULL, 1);
 		unlink(fn);
 		free(fn);
-		return;
+		return ;
 	}
 	get_and_set_value(NULL, 0);
 	return ;
@@ -130,9 +118,10 @@ void herdoc_parent(pid_t pid, char *fn)
 
 char	*read_heredoc(char *delimiter)
 {
-	char	*filename;
-	pid_t	pid;
-	int		fd;
+	char			*filename;
+	pid_t			pid;
+	int				fd;
+	t_env_and_exit	*shell;
 
 	if (prepare_file(&filename, &fd))
 		return (NULL);
@@ -142,20 +131,15 @@ char	*read_heredoc(char *delimiter)
 		perror("fork");
 		close(fd);
 		unlink(filename);
-		free(filename); 
-		return (NULL);
+		return (free(filename), NULL);
 	}
 	if (pid == 0)
-		herdoc_child(filename, delimiter);
+		herdoc_child(fd, delimiter);
 	else
 		herdoc_parent(pid, filename);
-
-	t_env_and_exit *shell = get_and_set_value(NULL, -1);
+	shell = get_and_set_value(NULL, -1);
 	if (shell->last_exit == 130)
-	{
-		// free(filename);
-		return (NULL);
-	}
+		return (free(filename), NULL);
 	close(fd);
 	return (filename);
 }
