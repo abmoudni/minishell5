@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 17:59:24 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/09 12:54:46 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/09 14:50:32 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,41 +101,61 @@ static t_token	*fill_cmd(t_cmd *cmd, t_token *tokens, int *err)
 	cmd->args[i] = NULL;
 	return (tokens);
 }
+static int	handle_pipe_token(t_token **tokens)
+{
+	if (!(*tokens)->next)
+	{
+		printf("minishell: syntax error near unexpected token `|'\n");
+		return (0);
+	}
+	*tokens = (*tokens)->next;
+	return (1);
+}
+
+static t_cmd	*handle_parse_error(t_cmd *cmds, t_cmd *new)
+{
+	free_array(new->args);
+	free(new);
+	free_cmds(cmds);
+	return (NULL);
+}
+
+static t_cmd	*process_single_cmd(t_token **tokens, t_cmd *cmds, 
+									t_cmd **current)
+{
+	t_cmd	*new;
+	int		err;
+
+	new = new_cmd();
+	if (!new)
+		return (free_cmds(cmds), NULL);
+	*tokens = fill_cmd(new, *tokens, &err);
+	if (err)
+		return (handle_parse_error(cmds, new));
+	if (!cmds)
+		cmds = new;
+	else
+		(*current)->next = new;
+	*current = new;
+	return (cmds);
+}
 
 t_cmd	*parser(t_token *tokens)
 {
 	t_cmd	*cmds;
 	t_cmd	*current;
-	t_cmd	*new;
-	int		err;
 
 	cmds = NULL;
 	current = NULL;
 	while (tokens)
 	{
-		new = new_cmd();
-		if (!new)
-			return (free_cmds(cmds), NULL);
-		tokens = fill_cmd(new, tokens, &err);
-		if (err)
-		{
-			free_array(new->args);
-			free(new);
-			return (free_cmds(cmds), NULL);
-		}
+		cmds = process_single_cmd(&tokens, cmds, &current);
 		if (!cmds)
-			cmds = new;
-		else
-			current->next = new;
-		current = new;
+			return (NULL);
 		if (tokens && tokens->type == T_PIPE)
 		{
-			if (!tokens->next)
-			{
-				printf("minishell: syntax error near unexpected token `|'\n");
+			if (!handle_pipe_token(&tokens))
 				return (free_cmds(cmds), NULL);
-			}
-			tokens = tokens->next;
 		}
 	}
 	return (cmds);

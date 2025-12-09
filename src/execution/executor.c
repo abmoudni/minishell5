@@ -6,15 +6,15 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:07 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/09 11:58:41 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/09 14:48:49 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static void	handle_parent(pid_t	pid, t_shell *shell)
+static void	handle_parent(pid_t pid, t_shell *shell)
 {
-	int		status;
+	int	status;
 
 	init_signals_child_exec();
 	waitpid(pid, &status, 0);
@@ -30,7 +30,7 @@ static void	handle_parent(pid_t	pid, t_shell *shell)
 static void	exec_single(t_cmd *cmd, t_shell *shell)
 {
 	pid_t	pid;
-	
+
 	if (is_builtin(cmd->args[0]) && !cmd->next && !cmd->redirs)
 	{
 		shell->exit_code = exec_builtin(cmd, shell);
@@ -74,10 +74,11 @@ static void	exec_pipeline(t_cmd *cmds, t_shell *shell, int **pipes, int n)
 	}
 	close_pipes(pipes, n);
 }
-static void wait_all_process(int n, t_shell *shell)
+
+static void	wait_all_process(int n, t_shell *shell)
 {
-	int		status;
-	int		newline;
+	int	status;
+	int	newline;
 
 	newline = 0;
 	while (n--)
@@ -94,11 +95,12 @@ static void wait_all_process(int n, t_shell *shell)
 		}
 	}
 }
+
 void	executor(t_cmd *cmds, t_shell *shell)
 {
-	int		**pipes;
-	int		n;
-	int		i;
+	int	**pipes;
+	int	n;
+	int	i;
 
 	if ((!cmds || !cmds->args[0]))
 		return ;
@@ -113,7 +115,6 @@ void	executor(t_cmd *cmds, t_shell *shell)
 	while (i < n - 1)
 		free(pipes[i++]);
 	free(pipes);
-
 	init_signals_child_exec();
 	wait_all_process(n, shell);
 	setup_signals();

@@ -112,7 +112,6 @@ char	*handle_heredoc(char *delimiter)
 	waitpid(pid, &status, 0);
 	setup_signals();
 	close(fd);
-
 	if (WIFEXITED(status))
 		to_free.shell->exit_code = WEXITSTATUS(status);
 	if (WIFSIGNALED(status))

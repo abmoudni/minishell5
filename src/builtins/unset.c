@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:05 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/07 18:16:52 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/09 14:49:01 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ int	ft_unset(char *name, t_shell *shell)
 
 int	builtin_unset(char **args, t_shell *shell)
 {
-	int i;
+	int	i;
 
 	if (!args[1])
 		return (0);
