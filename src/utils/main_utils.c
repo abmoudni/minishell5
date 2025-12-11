@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:10:53 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/09 15:13:28 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:53:10 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	process_line(char *line, t_shell *shell)
 	if (check_unclosed_quotes(line) == -1)
 		return (-1);
 	add_history(line);
-	tokens = lexer(line);
+	tokens = toknizer(line);
 	if (!tokens)
 		return (0);
 	cmds = parser(tokens);
@@ -53,19 +53,6 @@ int	process_line(char *line, t_shell *shell)
 	executor(cmds, shell);
 	free_cmds(cmds);
 	return (0);
-}
-
-char	*get_prompt(void)
-{
-	t_shell	*shell;
-	char	*prompt;
-
-	shell = get_and_set_value(NULL, -1);
-	if (shell->exit_code != 0)
-		prompt = "\001\033[31m\002minishell> \001\033[0m\002";
-	else
-		prompt = "\001\033[34m\002minishell> \001\033[0m\002";
-	return (prompt);
 }
 
 int	check_signals(char *line, t_shell *shell)

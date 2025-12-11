@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/01 20:45:36 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/08 12:05:48 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:51:34 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ static int	is_special(char c)
 	return (c == '|' || c == '<' || c == '>');
 }
 
-t_token	*lexer(char *line)
+t_token	*toknizer(char *line)
 {
 	t_token	*tokens;
 	t_token	*new;

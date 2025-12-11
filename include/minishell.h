@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/09 15:12:20 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/11 15:53:36 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,6 @@ extern volatile sig_atomic_t	g_signal;
 t_cmd							*get_pointer_cmds(t_cmd *original);
 t_shell							*get_and_set_value(t_shell *original, int code);
 int								process_line(char *line, t_shell *shell);
-char							*get_prompt(void);
 int								check_signals(char *line, t_shell *shell);
 
 // ============= Hererdoc Utils =============
@@ -103,7 +102,7 @@ int								prepare_file(char **filename, int *fd);
 int								*save_std_fds(void);
 void							restore_std_fds(int *saved);
 // ============= LEXER =============
-t_token							*lexer(char *line);
+t_token							*toknizer(char *line);
 void							free_tokens(t_token *tokens);
 
 // ============= PARSER =============
