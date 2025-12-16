@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:46:07 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/16 11:41:06 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/16 12:48:11 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ static void	exec_single(t_cmd *cmd, t_shell *shell)
 		shell->exit_code = exec_builtin(cmd, shell);
 		return ;
 	}
-
 	pid = fork();
 	if (pid < 0)
 		return ((void)perror("fork"));
