@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 17:59:24 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/11 18:31:22 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/16 11:22:05 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,14 @@ static t_redir	*process_redir(t_token *token)
 		free(file);
 		return (redir);
 	}
+	if (token->type == T_REDIR_IN && token->next)
+	{
+		if (access(token->next->value, X_OK) != 0)
+		{
+			ft_perror(token->next->value);
+			ft_perror(": No such file or directory\n");
+		}
+	}
 	return (new_redir(token->type, token->next->value));
 }
 
@@ -104,14 +112,19 @@ static t_token	*fill_cmd(t_cmd *cmd, t_token *tokens, int *err)
 	return (tokens);
 }
 
-static int	handle_pipe_token(t_token **tokens)
+static int	handle_pipe_token(t_token **tokens, int flag)
 {
-	if (!(*tokens)->next)
+	if ((!(*tokens)->next && !flag)|| ((*tokens)->type == T_PIPE && flag))
 	{
-		printf("minishell: syntax error near unexpected token `|'\n");
+		ft_perror("minishell: syntax error near unexpected token");
+		if ((*tokens)->next && (*tokens)->next->type == T_PIPE)
+			ft_perror(" `||'\n");
+		else
+			ft_perror(" `|'\n");
 		return (0);
 	}
-	*tokens = (*tokens)->next;
+	if (!flag)
+		*tokens = (*tokens)->next;
 	return (1);
 }
 
@@ -150,6 +163,9 @@ t_cmd	*parser(t_token *tokens)
 
 	cmds = NULL;
 	current = NULL;
+	if (!handle_pipe_token(&tokens, 1))
+		return (NULL);
+	
 	while (tokens)
 	{
 		cmds = process_single_cmd(&tokens, cmds, &current);
@@ -157,7 +173,7 @@ t_cmd	*parser(t_token *tokens)
 			return (NULL);
 		if (tokens && tokens->type == T_PIPE)
 		{
-			if (!handle_pipe_token(&tokens))
+			if (!handle_pipe_token(&tokens, 0))
 				return (free_cmds(cmds), NULL);
 		}
 	}

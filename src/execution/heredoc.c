@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 15:34:17 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/11 18:32:18 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/15 17:56:05 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ static void	heredoc_child(int *fd, char *delimiter, t_to_free *to_fere)
 
 static char	*wait_parent(pid_t pid, int fd, char *file)
 {
-	int	wstatus;
-	int status;
-	t_shell *shell;
+	int		wstatus;
+	int		status;
+	t_shell	*shell;
 
 	shell = get_and_set_value(NULL, -1);
 	signal(SIGINT, SIG_IGN);
@@ -72,7 +72,7 @@ char	*handle_heredoc(char *delimiter)
 		return (perror("fork"), NULL);
 	if (pid == 0)
 		heredoc_child(&fd, delimiter, &to_free);
-	else 
-		filename =  wait_parent(pid, fd, filename);
+	else
+		filename = wait_parent(pid, fd, filename);
 	return (filename);
 }

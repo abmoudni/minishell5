@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/07 16:45:53 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/09 11:54:26 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/16 11:41:36 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ void	exec_cmd(t_cmd *cmd, t_shell *shell, char **env)
 	if (is_builtin(cmd->args[0]))
 	{
 		shell->exit_code = exec_builtin(cmd, shell);
+		free_cmds(cmd);
+		free_array(shell->env);
 		exit(shell->exit_code);
 	}
 	path = find_path(cmd->args[0], env);
