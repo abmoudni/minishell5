@@ -19,8 +19,7 @@ void	exec_cmd(t_cmd *cmd, t_shell *shell, char **env)
 	if (is_builtin(cmd->args[0]))
 	{
 		shell->exit_code = exec_builtin(cmd, shell);
-		free_cmds(cmd);
-		free_array(shell->env);
+		free_grabage();
 		exit(shell->exit_code);
 	}
 	path = find_path(cmd->args[0], env);
@@ -28,12 +27,12 @@ void	exec_cmd(t_cmd *cmd, t_shell *shell, char **env)
 	{
 		ft_perror(cmd->args[0]);
 		ft_perror(": command not found\n");
-		free_cmds(cmd);
-		free_array(shell->env);
+		free_grabage();
 		exit(127);
 	}
 	execve(path, cmd->args, env);
 	perror("execve");
+	free_grabage();
 	exit(1);
 }
 

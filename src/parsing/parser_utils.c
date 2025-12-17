@@ -77,7 +77,7 @@ static t_cmd	*process_single_cmd(t_token **tokens, t_cmd *cmds,
 
 	new = new_cmd();
 	if (!new)
-		return (free_cmds(cmds), NULL);
+		return (NULL);
 	*tokens = fill_cmd(new, *tokens, &err);
 	if (err)
 		return (handle_parse_error(cmds, new));
@@ -106,7 +106,7 @@ t_cmd	*parser(t_token *tokens)
 		if (tokens && tokens->type == T_PIPE)
 		{
 			if (!handle_pipe_token(&tokens, 0))
-				return (free_cmds(cmds), NULL);
+				return (NULL);
 		}
 	}
 	return (cmds);

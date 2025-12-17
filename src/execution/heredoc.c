@@ -16,6 +16,7 @@ static void	heredoc_child(int *fd, char *delimiter, t_to_free *to_fere)
 {
 	char	*line;
 
+	(void)to_fere;
 	signal(SIGINT, handle_sigint_heredoc);
 	signal(SIGQUIT, SIG_IGN);
 	while (1)
@@ -25,9 +26,7 @@ static void	heredoc_child(int *fd, char *delimiter, t_to_free *to_fere)
 			break ;
 	}
 	close(*fd);
-	free_array(to_fere->shell->env);
-	free(to_fere->filename);
-	free_cmds(to_fere->cmds);
+	free_grabage();
 	exit(0);
 }
 

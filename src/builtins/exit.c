@@ -58,8 +58,6 @@ void	builtin_exit(t_cmd *cmd, t_shell *shell)
 		else
 			shell->exit_code = ft_atoi(cmd->args[1]);
 	}
-	if (cmd)
-		free_cmds(cmd);
-	free_array(shell->env);
+	free_grabage();
 	exit(shell->exit_code);
 }

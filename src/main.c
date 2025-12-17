@@ -33,6 +33,6 @@ int	main(int ac, char **av, char **env)
 		free(line);
 		g_signal = 0;
 	}
-	free_array(shell.env);
+	free_grabage();
 	return (shell.exit_code);
 }

@@ -77,9 +77,8 @@ int	handle_pipe_token(t_token **tokens, int flag)
 
 t_cmd	*handle_parse_error(t_cmd *cmds, t_cmd *new)
 {
-	free_array(new->args);
-	free(new);
-	free_cmds(cmds);
+	(void)cmds;
+	(void)new;
 	return (NULL);
 }
 

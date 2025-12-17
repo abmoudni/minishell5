@@ -14,11 +14,8 @@
 
 void	handle_sigint_heredoc(int sig)
 {
-	t_shell	*shell;
-
 	(void)sig;
-	shell = get_and_set_value(NULL, -1);
 	write(1, "\n", 1);
-	free_array(shell->env);
+	free_grabage();
 	exit(130);
 }

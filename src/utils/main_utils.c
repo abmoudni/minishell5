@@ -47,11 +47,9 @@ int	process_line(char *line, t_shell *shell)
 		return (0);
 	cmds = parser(tokens);
 	get_pointer_cmds(cmds);
-	free_tokens(tokens);
 	if (!cmds)
 		return (0);
 	executor(cmds, shell);
-	free_cmds(cmds);
 	return (0);
 }
 

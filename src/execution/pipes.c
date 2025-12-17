@@ -51,13 +51,13 @@ int	**create_pipes(int n)
 	int	**pipes;
 	int	i;
 
-	pipes = ft_malloc(sizeof(int *) * (n - 1));
+	pipes = malloc(sizeof(int *) * (n - 1));
 	if (!pipes)
 		return (NULL);
 	i = 0;
 	while (i < n - 1)
 	{
-		pipes[i] = ft_malloc(sizeof(int) * 2);
+		pipes[i] = malloc(sizeof(int) * 2);
 		if (!pipes[i] || pipe(pipes[i]) < 0)
 		{
 			perror("pipe");

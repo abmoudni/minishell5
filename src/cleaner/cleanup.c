@@ -16,7 +16,7 @@ t_gc	*create_node(void *data)
 {
 	t_gc	*new_node;
 
-	new_node = ft_malloc(sizeof(t_gc));
+	new_node = malloc(sizeof(t_gc));
 	if (!new_node)
 		return (NULL);
 	new_node->data = data;
@@ -30,6 +30,11 @@ t_gc	*get_garbage_collecter(void *ptr)
 	t_gc		*new_gc;
 	t_gc		*tmp;
 
+	if (ptr == (void *)-1)
+	{
+		gc = NULL;
+		return (NULL);
+	}
 	if (ptr)
 	{
 		new_gc = create_node(ptr);
@@ -52,7 +57,7 @@ void	*ft_malloc(size_t size)
 {
 	void	*ptr;
 
-	ptr = ft_malloc(size);
+	ptr = malloc(size);
 	if (!ptr)
 	{
 		perror("Minishell: Memory allocation failed!");
@@ -78,4 +83,5 @@ void	free_grabage(void)
 		free(tmp);
 		tmp = NULL;
 	}
+	get_garbage_collecter((void *)-1);
 }

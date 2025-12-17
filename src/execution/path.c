@@ -26,7 +26,6 @@ static char	*try_path(char *dir, char *cmd)
 	ft_strlcat(path, cmd, len);
 	if (access(path, X_OK) == 0)
 		return (path);
-	free(path);
 	return (NULL);
 }
 
@@ -47,13 +46,9 @@ static char	*look_for_path(char *cmd, char **env)
 	{
 		path = try_path(paths[i], cmd);
 		if (path)
-		{
-			free_array(paths);
 			return (path);
-		}
 		i++;
 	}
-	free_array(paths);
 	return (NULL);
 }
 

@@ -43,8 +43,7 @@ static void	exec_single(t_cmd *cmd, t_shell *shell)
 	{
 		if (handle_redirs(cmd->redirs) < 0)
 		{
-			free_array(shell->env);
-			free_cmds(cmd);
+			free_grabage();
 			exit(1);
 		}
 		exec_cmd(cmd, shell, shell->env);
@@ -56,6 +55,7 @@ static void	exec_pipeline(t_cmd *cmds, t_shell *shell, int **pipes, int n)
 {
 	pid_t	pid;
 	int		i;
+	int		j;
 
 	i = 0;
 	while (i < n)
@@ -66,7 +66,18 @@ static void	exec_pipeline(t_cmd *cmds, t_shell *shell, int **pipes, int n)
 			setup_pipes(pipes, i, n);
 			close_pipes(pipes, n);
 			if (handle_redirs(cmds->redirs) < 0)
+			{
+				j = 0;
+				while (j < n - 1)
+					free(pipes[j++]);
+				free(pipes);
+				free_grabage();
 				exit(1);
+			}
+			j = 0;
+			while (j < n - 1)
+				free(pipes[j++]);
+			free(pipes);
 			exec_cmd(cmds, shell, shell->env);
 		}
 		cmds = cmds->next;

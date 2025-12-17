@@ -93,10 +93,7 @@ t_token	*toknizer(char *line)
 		else
 			new = new_token(extract_word(line, &i), T_WORD);
 		if (!new)
-		{
-			free_tokens(tokens);
 			return (NULL);
-		}
 		add_token(&tokens, new);
 	}
 	return (tokens);
