@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:54 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/09 14:49:58 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/17 18:00:31 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ int	skip_and_apply_n_flags(char **args, int *newline)
 			k++;
 		if (args[i][k] == '\0')
 			*newline = 0;
+		else
+			return (i);
 		i++;
 	}
 	return (i);

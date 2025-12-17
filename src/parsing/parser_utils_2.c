@@ -52,9 +52,7 @@ char	*expand_exit_code(char *cmds)
 	{
 		tmp = ft_itoa(shell->exit_code);
 		res = ft_strjoin(tmp, cmds + 2);
-		free(cmds);
 		cmds = res;
-		free(tmp);
 	}
 	return (cmds);
 }

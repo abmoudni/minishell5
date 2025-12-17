@@ -29,10 +29,7 @@ char	**copy_env(char **env)
 	{
 		new_env[i] = ft_strdup(env[i]);
 		if (!new_env[i])
-		{
-			free_array(new_env);
 			return (NULL);
-		}
 		i++;
 	}
 	new_env[i] = NULL;
