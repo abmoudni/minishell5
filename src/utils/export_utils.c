@@ -64,7 +64,7 @@ char	*get_name(char *arg, t_shell *shell, int *ret, int *i)
 	if (!is_name_valid(name))
 	{
 		p_err(arg);
-		return (free(name), (*ret)++, (*i)++, NULL);
+		return ((*ret)++, (*i)++, NULL);
 	}
 	return (name);
 }
@@ -76,16 +76,9 @@ char	*get_value(char *arg, char *name, int *ret, int *i)
 
 	value = ft_strdup(arg + ft_strlen(name) + 1);
 	if (!value)
-	{
-		free(name);
 		return ((*ret)++, (*i)++, NULL);
-	}
 	clean_value = remove_quotes(value);
-	free(value);
 	if (!clean_value)
-	{
-		free(name);
 		return ((*ret)++, (*i)++, NULL);
-	}
 	return (clean_value);
 }

@@ -19,7 +19,6 @@ static char	*update_the_value(char *temp, char *value, t_shell *shell,
 	int		i;
 
 	new_var = ft_strjoin(temp, value);
-	free(temp);
 	if (!new_var)
 	{
 		shell->running = 1;
@@ -32,7 +31,6 @@ static char	*update_the_value(char *temp, char *value, t_shell *shell,
 			&& (shell->env[i][ft_strlen(name)] == '='
 			|| shell->env[i][ft_strlen(name)] == '\0'))
 		{
-			free(shell->env[i]);
 			shell->env[i] = new_var;
 			shell->running = 0;
 			return (NULL);
@@ -53,10 +51,7 @@ static char	**re_create_env(t_shell *shell, char *new_var)
 		count++;
 	new_env = ft_malloc(sizeof(char *) * (count + 2));
 	if (!new_env)
-	{
-		free(new_var);
 		return (NULL);
-	}
 	i = 0;
 	while (i < count)
 	{
@@ -85,11 +80,7 @@ int	set_env(char *name, char *value, t_shell *shell)
 		return (0);
 	new_env = re_create_env(shell, new_var);
 	if (!new_env)
-	{
-		free(new_var);
 		return (1);
-	}
-	free(shell->env);
 	shell->env = new_env;
 	return (0);
 }

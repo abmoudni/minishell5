@@ -23,18 +23,12 @@ static char	*generate_unique_tempfile(void)
 	if (!num_str)
 		return (NULL);
 	temp1 = ft_strjoin("/tmp/.heredoc_temp_", num_str);
-	free(num_str);
 	if (!temp1)
 		return (NULL);
 	num_str = ft_itoa(getpid());
 	if (!num_str)
-	{
-		free(temp1);
 		return (NULL);
-	}
 	filename = ft_strjoin(temp1, num_str);
-	free(temp1);
-	free(num_str);
 	return (filename);
 }
 

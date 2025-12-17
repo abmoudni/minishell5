@@ -61,8 +61,6 @@ int	builtin_export(char **args, t_shell *shell)
 			continue ;
 		if (set_env(name, clean_value, shell) != 0)
 			ret = 1;
-		free(name);
-		free(clean_value);
 		i++;
 	}
 	return (ret);
