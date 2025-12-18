@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 17:59:24 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/17 00:16:22 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/18 01:16:47 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ t_redir	*process_redir(t_token *token)
 			return (NULL);
 		}
 		redir = new_redir(token->type, file);
-		free(file);
 		return (redir);
 	}
 	if (token->type == T_REDIR_IN && token->next)
@@ -71,13 +70,6 @@ int	handle_pipe_token(t_token **tokens, int flag)
 	if (!flag)
 		*tokens = (*tokens)->next;
 	return (1);
-}
-
-t_cmd	*handle_parse_error(t_cmd *cmds, t_cmd *new)
-{
-	(void)cmds;
-	(void)new;
-	return (NULL);
 }
 
 int	check_syntax(t_token *token)

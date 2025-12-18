@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 02:45:45 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/17 23:43:55 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/18 01:16:42 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,13 +73,6 @@ typedef struct s_quotes
 	char						quote;
 }								t_quotes;
 
-typedef struct s_to_free
-{
-	char						*filename;
-	t_shell						*shell;
-	t_cmd						*cmds;
-}								t_to_free;
-
 typedef struct s_gc
 {
 	void				*data;
@@ -94,7 +87,6 @@ extern volatile sig_atomic_t	g_signal;
 # define LLONG_MAX 9223372036854775807LL
 # define LLONG_MIN -9223372036854775808LL
 // ============= Main Utils =============
-t_cmd							*get_pointer_cmds(t_cmd *original);
 t_shell							*get_and_set_value(t_shell *original, int code);
 int								process_line(char *line, t_shell *shell);
 int								check_signals(char *line, t_shell *shell);
@@ -104,13 +96,7 @@ char							*handle_heredoc(char *delimiter);
 char							*expand_exit_code(char *cmds);
 int								write_to_file(char *input, char *delimiter,
 									int fd);
-t_cmd							*get_pointer_cmds(t_cmd *original);
 int								prepare_file(char **filename, int *fd);
-
-// ============= File Discriptor Utils =============
-//
-int								*save_std_fds(void);
-void							restore_std_fds(int *saved);
 // ============= LEXER =============
 t_token							*toknizer(char *line);
 
@@ -119,7 +105,6 @@ t_cmd							*parser(t_token *tokens);
 t_redir							*process_redir(t_token *token);
 char							*expand_exit_code(char *cmds);
 int								handle_pipe_token(t_token **tokens, int flag);
-t_cmd							*handle_parse_error(t_cmd *cmds, t_cmd *new);
 int								check_syntax(t_token *token);
 // ============= EXECUTOR =============
 void							executor(t_cmd *cmds, t_shell *shell);
@@ -140,6 +125,7 @@ void							setup_signals(void);
 void							restore_signals(void);
 void							handle_sigint(int sig);
 void							handle_sigint_heredoc(int sig);
+int								get_fd_file(int new);
 
 // ============= UTILS =============
 char							**copy_env(char **env);

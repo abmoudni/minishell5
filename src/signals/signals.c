@@ -48,7 +48,6 @@ void	setup_signals(void)
 void	disable_parent_signals(void)
 {
 	struct sigaction	sa_sign;
-	struct sigaction	sa_quit;
 
 	sa_sign.sa_handler = SIG_IGN;
 	sigemptyset(&sa_sign.sa_mask);

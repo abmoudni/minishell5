@@ -27,7 +27,6 @@ SRC = src/main.c \
        src/signals/heredoc_signals.c \
        src/utils/ft_funcs.c \
        src/utils/export_utils.c \
-       src/utils/file_descriptor.c \
        src/utils/env_set.c \
        src/cleaner/cleanup.c \
        src/utils/env_get.c
@@ -53,7 +52,7 @@ $(OBJ_DIR)/%.o: src/%.c
 	@mkdir -p $(OBJ_DIR)/utils $(OBJ_DIR)/tokenizer $(OBJ_DIR)/parsing \
 			$(OBJ_DIR)/execution $(OBJ_DIR)/builtins $(OBJ_DIR)/signals \
 			$(OBJ_DIR)/cleaner
-	@$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	@${MAKE} clean -C ${LIBFT_DIR}

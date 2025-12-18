@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:10:53 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/17 15:50:22 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/18 01:15:47 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,6 @@ t_shell	*get_and_set_value(t_shell *original, int code)
 		current = original;
 	if (code != -1)
 		current->exit_code = code;
-	return (current);
-}
-
-t_cmd	*get_pointer_cmds(t_cmd *original)
-{
-	static t_cmd	*current;
-
-	if (original)
-		current = original;
 	return (current);
 }
 
@@ -46,7 +37,6 @@ int	process_line(char *line, t_shell *shell)
 	if (!tokens)
 		return (0);
 	cmds = parser(tokens);
-	get_pointer_cmds(cmds);
 	if (!cmds)
 		return (0);
 	executor(cmds, shell);

@@ -6,19 +6,28 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 15:34:17 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/15 17:56:05 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/18 01:19:36 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static void	heredoc_child(int *fd, char *delimiter, t_to_free *to_fere)
+int	get_fd_file(int new)
+{
+	static int	fd;
+
+	if (new != -1)
+		fd = new;
+	return (fd);
+}
+
+static void	heredoc_child(int *fd, char *delimiter)
 {
 	char	*line;
 
-	(void)to_fere;
 	signal(SIGINT, handle_sigint_heredoc);
 	signal(SIGQUIT, SIG_IGN);
+	get_fd_file(*fd);
 	while (1)
 	{
 		line = readline("> ");
@@ -59,18 +68,14 @@ char	*handle_heredoc(char *delimiter)
 	char		*filename;
 	pid_t		pid;
 	int			fd;
-	t_to_free	to_free;
 
-	to_free.shell = get_and_set_value(NULL, -1);
-	to_free.cmds = get_pointer_cmds(NULL);
 	if (prepare_file(&filename, &fd))
 		return (NULL);
-	to_free.filename = filename;
 	pid = fork();
 	if (pid < 0)
 		return (perror("fork"), NULL);
 	if (pid == 0)
-		heredoc_child(&fd, delimiter, &to_free);
+		heredoc_child(&fd, delimiter);
 	else
 		filename = wait_parent(pid, fd, filename);
 	return (filename);

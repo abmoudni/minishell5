@@ -6,7 +6,7 @@
 /*   By: mtawil <mtawil@student.1337.ma>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 17:59:24 by mtawil            #+#    #+#             */
-/*   Updated: 2025/12/17 16:45:46 by mtawil           ###   ########.fr       */
+/*   Updated: 2025/12/18 01:16:37 by mtawil           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ static t_cmd	*process_single_cmd(t_token **tokens, t_cmd *cmds,
 		return (NULL);
 	*tokens = fill_cmd(new, *tokens, &err);
 	if (err)
-		return (handle_parse_error(cmds, new));
+		return (NULL);
 	if (!cmds)
 		cmds = new;
 	else
